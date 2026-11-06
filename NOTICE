@@ -1,0 +1,13 @@
+ArxSource
+Copyright 2026 nicolaiprodromov
+
+This product is derived from arxiv-mcp-server by Joseph Blazick
+(https://github.com/blazickjp/arxiv-mcp-server), Copyright 2024 Joseph Blazick,
+licensed under the Apache License, Version 2.0.
+
+ArxSource has been modified from the original: it has been renamed and
+rebranded, and its package metadata, configuration, documentation, and tooling
+have been changed. Further modifications are recorded in the git history of
+https://github.com/nicolaiprodromov/arxsource.
+
+ArxSource is not affiliated with or endorsed by arXiv or Cornell University.

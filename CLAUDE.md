@@ -4,7 +4,7 @@ Guidance for coding agents working in this repository.
 
 ## Project
 
-`arxiv-mcp-server` is a Python 3.11+ Model Context Protocol server. It exposes arXiv search, metadata, paper download/read, original LaTeX retrieval, citation graphs, topic alerts, and optional local semantic search over stdio or Streamable HTTP.
+ArxSource (`arxsource-mcp` on PyPI, `arxsource_mcp` import package) is a Python 3.11+ Model Context Protocol server. It exposes arXiv search, metadata, paper download/read, original LaTeX retrieval, citation graphs, topic alerts, and optional local semantic search over stdio or Streamable HTTP.
 
 ## Setup and validation
 
@@ -31,29 +31,29 @@ uv run pytest tests/tools/test_search.py -q
 Run the stdio server from the checkout with:
 
 ```bash
-uv run arxiv-mcp-server --storage-path /tmp/arxiv-mcp-papers
+uv run arxsource-mcp --storage-path /tmp/arxsource-papers
 ```
 
 The process waits for MCP messages on stdin. It is not an interactive CLI.
 
 ## Architecture
 
-- `src/arxiv_mcp_server/server.py`: MCP tool/prompt registration, dispatch, stdio transport, and Streamable HTTP transport.
-- `src/arxiv_mcp_server/config.py`: Pydantic settings and shared arXiv client lifecycle.
-- `src/arxiv_mcp_server/arxiv_api.py`: shared arXiv request coordination.
-- `src/arxiv_mcp_server/tools/`: tool schemas and handlers.
-- `src/arxiv_mcp_server/prompts/`: registered MCP prompt definitions and routing.
-- `src/arxiv_mcp_server/resources/`: legacy/local paper management paths retained for compatibility.
+- `src/arxsource_mcp/server.py`: MCP tool/prompt registration, dispatch, stdio transport, and Streamable HTTP transport.
+- `src/arxsource_mcp/config.py`: Pydantic settings and shared arXiv client lifecycle.
+- `src/arxsource_mcp/arxiv_api.py`: shared arXiv request coordination.
+- `src/arxsource_mcp/tools/`: tool schemas and handlers.
+- `src/arxsource_mcp/prompts/`: registered MCP prompt definitions and routing.
+- `src/arxsource_mcp/resources/`: legacy/local paper management paths retained for compatibility.
 - `tests/`: unit and protocol-level tests.
 - `server.json`: official MCP Registry metadata.
 - `manifest.json` and `scripts/build-mcpb.sh`: Claude Desktop MCPB packaging.
 
 ## Tool groups
 
-The server registers 16 tools:
+The server registers 19 tools:
 
 - Discovery: `search_papers`, `get_abstract`
-- Full text: `download_paper`, `list_papers`, `read_paper`
+- Full text: `download_paper`, `list_papers`, `read_paper`, `get_paper_outline`, `read_paper_section`, `search_paper_text`
 - Original source: `get_paper_latex`, `list_paper_latex_sections`, `get_paper_latex_section`
 - Graphs and monitoring: `citation_graph`, `watch_topic`, `list_watches`, `check_alerts`, `unwatch_topic`
 - Citation export: `export_citations`
@@ -74,10 +74,10 @@ Keep tool schemas, package exports, server registration, dispatch, tests, and RE
 
 ## Configuration
 
-`Settings` reads unprefixed environment variables such as:
+`Settings` reads environment variables case-insensitively. arXiv request tuning uses the `ARXSOURCE_` prefix (`ARXSOURCE_REQUEST_TIMEOUT`, `ARXSOURCE_CONNECT_TIMEOUT`, `ARXSOURCE_MAX_TOTAL_TIME`, `ARXSOURCE_MAX_RETRIES`, `ARXSOURCE_HTTP_406_MAX_RETRIES`, `ARXSOURCE_INITIAL_BACKOFF`, `ARXSOURCE_MAX_BACKOFF`). Other settings are unprefixed:
 
 - `MAX_RESULTS`
-- `REQUEST_TIMEOUT`
+- `REQUEST_TIMEOUT` (fallback when `ARXSOURCE_REQUEST_TIMEOUT` is unset)
 - `TRANSPORT`
 - `HOST`
 - `PORT`
@@ -85,7 +85,7 @@ Keep tool schemas, package exports, server registration, dispatch, tests, and RE
 - `ALLOWED_ORIGINS`
 - `SEMANTIC_SCHOLAR_API_KEY`
 
-Paper storage is selected with the `--storage-path` command-line option and defaults to `~/.arxiv-mcp-server/papers`.
+Paper storage is selected with the `--storage-path` command-line option and defaults to `~/.arxsource/papers`.
 
 ## Changes
 

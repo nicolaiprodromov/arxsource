@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve arxiv-mcp-server.
+Thanks for helping improve ArxSource.
 
 ## Before you start
 
@@ -14,15 +14,15 @@ Thanks for helping improve arxiv-mcp-server.
 The project requires Python 3.11 or newer and uses [uv](https://docs.astral.sh/uv/).
 
 ```bash
-git clone https://github.com/blazickjp/arxiv-mcp-server.git
-cd arxiv-mcp-server
+git clone https://github.com/nicolaiprodromov/arxsource.git
+cd arxsource
 uv sync --extra test --extra dev
 ```
 
 Run the local checkout as an MCP server with:
 
 ```bash
-uv run arxiv-mcp-server --storage-path /tmp/arxiv-mcp-papers
+uv run arxsource-mcp --storage-path /tmp/arxsource-papers
 ```
 
 The process waits for MCP messages on stdio; it does not print an interactive prompt.
@@ -58,7 +58,7 @@ Avoid changing MCP tool names or schemas without discussing compatibility first.
 
 ## Reporting bugs
 
-Open a [GitHub issue](https://github.com/blazickjp/arxiv-mcp-server/issues) with:
+Open a [GitHub issue](https://github.com/nicolaiprodromov/arxsource/issues) with:
 
 - the package version and installation method
 - operating system and Python version

@@ -1,149 +1,141 @@
-# arxiv-mcp-server
+# ArxSource
 
-<!-- mcp-name: io.github.blazickjp/arxiv-mcp-server -->
+**Read the paper. Find the source.**
 
-[![PyPI](https://img.shields.io/pypi/v/arxiv-mcp-server.svg)](https://pypi.org/project/arxiv-mcp-server/)
-[![Downloads](https://static.pepy.tech/badge/arxiv-mcp-server)](https://pypi.org/project/arxiv-mcp-server/)
+<!-- mcp-name: io.github.nicolaiprodromov/arxsource -->
+
+[![PyPI](https://img.shields.io/pypi/v/arxsource-mcp.svg)](https://pypi.org/project/arxsource-mcp/)
+[![Python](https://img.shields.io/pypi/pyversions/arxsource-mcp.svg)](https://pypi.org/project/arxsource-mcp/)
+[![Tests](https://github.com/nicolaiprodromov/arxsource/actions/workflows/tests.yml/badge.svg)](https://github.com/nicolaiprodromov/arxsource/actions/workflows/tests.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![MCP Registry](https://img.shields.io/badge/MCP_Registry-listed,_latest_0.8.2-5C5CFF?style=flat-square)](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.blazickjp%2Farxiv-mcp-server/versions/latest)
-[![Tests](https://github.com/blazickjp/arxiv-mcp-server/actions/workflows/tests.yml/badge.svg)](https://github.com/blazickjp/arxiv-mcp-server/actions/workflows/tests.yml)
-[![GitHub stars](https://img.shields.io/github/stars/blazickjp/arxiv-mcp-server)](https://github.com/blazickjp/arxiv-mcp-server/stargazers)
 
-[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=arxiv-mcp-server&config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22arxiv-mcp-server%22%5D%7D)
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=arxiv-mcp-server&config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJhcnhpdi1tY3Atc2VydmVyIl19)
-[![Add to Kiro](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=arxiv-mcp-server&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22arxiv-mcp-server%22%5D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-Install-D97757?style=flat-square&logo=anthropic&logoColor=white)](#claude-code)
-[![OpenAI Codex](https://img.shields.io/badge/OpenAI_Codex-Install-000000?style=flat-square&logo=openai&logoColor=white)](#openai-codex)
-[![Hermes Agent](https://img.shields.io/badge/Hermes_Agent-Install-6C5CE7?style=flat-square)](#hermes-agent)
+ArxSource is an open-source [Model Context Protocol](https://modelcontextprotocol.io) server that lets AI agents search, read and analyze arXiv papers, and find their code. It runs locally over stdio, keeps papers on disk, and returns bounded, section-aware content so a single tool call never floods the context window.
 
-A local MCP server for agent literature work. The differentiator is original-LaTeX section reads, BibTeX from arXiv metadata, and topic watches. Papers stay on disk. The working loop is paper ID → outline → one section → citations. Search is optional.
+The working loop: **paper ID → outline → one section → citations → code.**
 
-## Install
+- **Read precisely.** Page through rendered full text, or read the author's original LaTeX one section at a time.
+- **Follow the literature.** Traverse references and citing papers, export BibTeX from arXiv metadata, and keep topic watches that report new papers.
+- **Find the source.** Go from an arXiv ID to the paper's GitHub repository and the Hugging Face models, datasets, and Spaces built on it.
 
-The default install is `uvx arxiv-mcp-server`. Command-based integrations need [uv](https://docs.astral.sh/uv/getting-started/installation/), which provides `uvx`. No repository clone or Python environment setup is required.
+ArxSource is not affiliated with or endorsed by arXiv.
+
+## Quickstart
+
+ArxSource needs [uv](https://docs.astral.sh/uv/getting-started/installation/), which provides `uvx`. No clone or Python environment setup is required.
 
 ```bash
-uvx arxiv-mcp-server
+# Run the server (it waits for MCP messages on stdio)
+uvx arxsource-mcp
+
+# Add it to Claude Code for all projects
+claude mcp add --transport stdio --scope user arxsource -- uvx arxsource-mcp
 ```
 
-Add this stdio configuration to clients that accept the `mcpServers` JSON shape, such as Claude Desktop and Kiro. Other clients may use a top-level `servers` object, TOML, or their own settings UI; consult the client's MCP documentation.
+For Claude Desktop, Kiro, and other clients that accept the `mcpServers` JSON shape:
 
 ```json
 {
   "mcpServers": {
-    "arxiv": {
+    "arxsource": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["arxiv-mcp-server"]
+      "args": ["arxsource-mcp"]
     }
   }
 }
 ```
 
-The default paper directory is `~/.arxiv-mcp-server/papers`. To choose another directory, append `"--storage-path", "/absolute/path/to/papers"` to `args`.
+Then ask your agent something like *"Find the original Transformer paper, summarize section 3.2 from its LaTeX, and show me its official code."*
 
-The supported package is published on PyPI as `arxiv-mcp-server==0.8.2`. An unrelated npm package uses the same name, so do not install this server with npm, pnpm, or `npx arxiv-mcp-server`.
+Papers are stored in `~/.arxsource/papers` by default. To use another directory, append `"--storage-path", "/absolute/path/to/papers"` to `args`.
 
-Listed on the [official MCP registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.blazickjp%2Farxiv-mcp-server/versions/latest), latest 0.8.2.
+## Install in other clients
 
-## Why this is not a search wrapper
-
-Search, source retrieval, citation graphs, and downloads call their respective external services. What stays local is the literature loop: read author-submitted LaTeX one section at a time, export BibTeX from authoritative arXiv metadata, and keep topic watches on disk. The server runs locally over stdio by default.
+[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=arxsource&config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22arxsource-mcp%22%5D%7D)
+[![Install in Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=arxsource&config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJhcnhzb3VyY2UtbWNwIl19)
+[![Add to Kiro](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=arxsource&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22arxsource-mcp%22%5D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)
 
 <details>
 <summary>Per-client recipes (Claude Code, Codex, Hermes, VS Code / Kiro, Claude Desktop, plugins)</summary>
 
-Use the default JSON above unless your client has a one-line helper.
+Use the JSON above unless your client has a one-line helper. Other clients may use a top-level `servers` object, TOML, or their own settings UI; consult the client's MCP documentation.
 
 ### Claude Code
 
 Add the MCP server for all projects:
 
 ```bash
-claude mcp add --transport stdio --scope user arxiv -- uvx arxiv-mcp-server
+claude mcp add --transport stdio --scope user arxsource -- uvx arxsource-mcp
 ```
 
-For the richer plugin integration—which installs the MCP connection plus the bundled arXiv research skill—register this repository as a marketplace and install the plugin:
+For the plugin integration, which installs the MCP connection plus the bundled ArxSource research skill, register this repository as a marketplace and install the plugin:
 
 ```bash
-claude plugin marketplace add blazickjp/arxiv-mcp-server
-claude plugin install arxiv-mcp-server@arxiv-mcp
+claude plugin marketplace add nicolaiprodromov/arxsource
+claude plugin install arxsource-mcp@arxsource
 ```
 
-Verify the direct MCP installation with `claude mcp get arxiv`. Restart Claude Code or run `/reload-plugins` after installing the plugin.
+Verify the direct MCP installation with `claude mcp get arxsource`. Restart Claude Code or run `/reload-plugins` after installing the plugin.
 
 ### OpenAI Codex
 
 Add the MCP server:
 
 ```bash
-codex mcp add arxiv -- uvx arxiv-mcp-server
+codex mcp add arxsource -- uvx arxsource-mcp
 ```
 
 Or install the MCP connection and bundled research skill as a Codex plugin:
 
 ```bash
-codex plugin marketplace add blazickjp/arxiv-mcp-server
-codex plugin add arxiv-mcp-server@arxiv-mcp
+codex plugin marketplace add nicolaiprodromov/arxsource
+codex plugin add arxsource-mcp@arxsource
 ```
 
-Verify the direct MCP installation with `codex mcp get arxiv`. Codex CLI, the Codex IDE extension, and Codex in the ChatGPT desktop app share this MCP configuration.
+Verify the direct MCP installation with `codex mcp get arxsource`. Codex CLI, the Codex IDE extension, and Codex in the ChatGPT desktop app share this MCP configuration.
 
 ### Hermes Agent
-
-[![Hermes Agent](https://img.shields.io/badge/Hermes_Agent-Install-6C5CE7?style=flat-square)](#hermes-agent)
 
 Add the server, approve the discovered tools, and test the saved connection:
 
 ```bash
-hermes mcp add arxiv --command uvx --args arxiv-mcp-server
-hermes mcp test arxiv
+hermes mcp add arxsource --command uvx --args arxsource-mcp
+hermes mcp test arxsource
 ```
 
-### VS Code and Kiro
+### VS Code, Cursor, and Kiro
 
-[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=arxiv-mcp-server&config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22arxiv-mcp-server%22%5D%7D)
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=arxiv-mcp-server&config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJhcnhpdi1tY3Atc2VydmVyIl19)
-[![Add to Kiro](https://kiro.dev/images/add-to-kiro.svg)](https://kiro.dev/launch/mcp/add?name=arxiv-mcp-server&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22arxiv-mcp-server%22%5D%2C%22disabled%22%3Afalse%2C%22autoApprove%22%3A%5B%5D%7D)
-
-For the richer Kiro Power integration, open the **Powers** panel, choose **Add Custom Power → Import power from GitHub**, and enter:
+Use the install buttons above. For the Kiro Power integration, open the **Powers** panel, choose **Add Custom Power → Import power from GitHub**, and enter:
 
 ```text
-https://github.com/blazickjp/arxiv-mcp-server
+https://github.com/nicolaiprodromov/arxsource
 ```
 
-The Power installs the MCP connection from `mcp.json` and adds focused arXiv research guidance. Kiro users who prefer manual configuration can place the generic configuration above in `.kiro/settings/mcp.json` for one workspace or `~/.kiro/settings/mcp.json` for all workspaces.
+The Power installs the MCP connection from `mcp.json` and adds focused research guidance. To configure Kiro manually, place the JSON above in `.kiro/settings/mcp.json` for one workspace or `~/.kiro/settings/mcp.json` for all workspaces.
 
 ### Claude Desktop bundle
 
-macOS users can install a bundled `.mcpb` extension from the [v0.8.2 release](https://github.com/blazickjp/arxiv-mcp-server/releases/tag/v0.8.2) or the [latest GitHub release](https://github.com/blazickjp/arxiv-mcp-server/releases/latest):
-
-- Apple Silicon: [`arxiv-mcp-server-darwin-arm64-0.8.2.mcpb`](https://github.com/blazickjp/arxiv-mcp-server/releases/download/v0.8.2/arxiv-mcp-server-darwin-arm64-0.8.2.mcpb)
-- Intel: [`arxiv-mcp-server-darwin-x86_64-0.8.2.mcpb`](https://github.com/blazickjp/arxiv-mcp-server/releases/download/v0.8.2/arxiv-mcp-server-darwin-x86_64-0.8.2.mcpb)
+macOS users can install a bundled `.mcpb` extension from the [latest GitHub release](https://github.com/nicolaiprodromov/arxsource/releases/latest): `arxsource-mcp-darwin-arm64-<version>.mcpb` for Apple Silicon or `arxsource-mcp-darwin-x86_64-<version>.mcpb` for Intel.
 
 Double-click the bundle, drag it into Claude Desktop, or open **Settings → Extensions → Advanced settings → Install Extension…**. The bundle includes the server dependencies and requires CPython 3.11.x.
 
-### Other MCP clients
-
-Other clients may use a top-level `servers` object, TOML, or their own settings UI; consult the client MCP documentation. Direct MCP installation is the shortest path. Install a plugin when you also want the research workflow that steers the client toward focused searches, bounded reads, citation traversal, and section-level LaTeX retrieval.
-
 ### Plugin manifests
 
-The same MCP server and research skill are packaged for both major plugin systems:
+The same MCP server and research skill are packaged for each plugin system:
 
 | Integration | Manifest | Marketplace |
 |---|---|---|
 | Claude Code | `.claude-plugin/plugin.json` | `.claude-plugin/marketplace.json` |
 | OpenAI Codex / ChatGPT Work | `.codex-plugin/plugin.json` | `.agents/plugins/marketplace.json` |
 | Kiro Power | `POWER.md` | `mcp.json` |
-| Shared MCP launch | `.mcp.json` for Claude and repository-local clients; `.codex-mcp.json` for Codex plugins | `uvx arxiv-mcp-server` |
-| Shared research workflow | `skills/arxiv-mcp-server/SKILL.md` | Installed with either plugin |
+| Shared MCP launch | `.mcp.json` for Claude and repository-local clients; `.codex-mcp.json` for Codex plugins | `uvx arxsource-mcp` |
+| Shared research workflow | `skills/arxsource/SKILL.md` | Installed with either plugin |
 
 </details>
 
-## If a desktop client cannot find `uvx`
+### If a desktop client cannot find `uvx`
 
-Desktop applications do not always inherit the same `PATH` as your terminal. If `uvx arxiv-mcp-server` works in a terminal but the client reports that the server failed to connect, find the executable's absolute path:
+Desktop applications do not always inherit the same `PATH` as your terminal. If `uvx arxsource-mcp` works in a terminal but the client reports that the server failed to connect, find the executable's absolute path:
 
 ```bash
 # macOS and Linux
@@ -157,29 +149,29 @@ command -v uvx
 
 Replace `"command": "uvx"` with the returned absolute path, then restart the client. Keep the `args` value unchanged.
 
-## If an existing installation is missing newer tools
+### Upgrading
 
-`uvx` reuses cached tool environments. Force it to resolve the current PyPI release with a supported interpreter, then restart your MCP client:
-
-```bash
-uvx --python 3.11 --refresh-package arxiv-mcp-server arxiv-mcp-server
-```
-
-If your client still launches an older environment, add `"--python", "3.11"` before `"arxiv-mcp-server"` in its `args` array.
-
-## Persistent command install
-
-To place `arxiv-mcp-server` on your `PATH` instead of launching it through `uvx`:
+`uvx` reuses cached tool environments. To pick up the latest PyPI release with a supported interpreter, run the following and restart your MCP client:
 
 ```bash
-uv tool install arxiv-mcp-server
+uvx --python 3.11 --refresh-package arxsource-mcp arxsource-mcp
 ```
 
-If the command is not immediately available, run `uv tool update-shell` and restart the terminal. Afterward, use `"command": "arxiv-mcp-server"` and omit the package name from `args`.
+If your client still launches an older environment, add `"--python", "3.11"` before `"arxsource-mcp"` in its `args` array.
+
+### Persistent command install
+
+To place `arxsource-mcp` on your `PATH` instead of launching it through `uvx`:
+
+```bash
+uv tool install arxsource-mcp
+```
+
+If the command is not immediately available, run `uv tool update-shell` and restart the terminal. Afterward, use `"command": "arxsource-mcp"` and omit the package name from `args`.
 
 ## Tools
 
-The server currently exposes 19 tools.
+ArxSource exposes 20 tools.
 
 | Tool | Purpose | Notes |
 |---|---|---|
@@ -196,6 +188,7 @@ The server currently exposes 19 tools.
 | `get_paper_latex_section` | Read one bounded LaTeX section | Select by outline ID or exact title |
 | `citation_graph` | Fetch references and citing papers | Remote Semantic Scholar API (1 call per paper, cached on disk); optional free API key improves reliability |
 | `export_citations` | Export BibTeX for one or more arXiv IDs | Authoritative arXiv metadata |
+| `find_paper_code` | **New.** Find the code behind a paper | Input: arXiv ID. Returns the paper's GitHub repository and star count, plus the top Hugging Face models, datasets, and Spaces that reference it |
 | `watch_topic` | Save or update an arXiv topic watch | Stored locally; omit `categories` to preserve on update, `categories: []` to clear |
 | `list_watches` | List saved topic watches | Read-only; does not advance last_checked |
 | `check_alerts` | Check saved watches for new papers | Returns papers since the last check |
@@ -315,20 +308,7 @@ Or continue from a prior chunk:
 }
 ```
 
-Large-content responses include `content_length`, `returned_chars`, `next_start`, `is_truncated`, and (when truncated) `next_retrieval` with the next-call instruction. Pass `next_start` into the next call's `start` to continue reading. Pass an explicit `max_chars` to override the default chunk size, or `"return_full_text": true` to opt into the previous unbounded full-paper response.
-
-#### Migration notes (bounded content default)
-
-Previously, omitting `max_chars` on `download_paper` / `read_paper` returned the **entire** paper. That default is now a **12,000-character** chunk so a single MCP tool call cannot flood the client context window.
-
-| Need | Call |
-|---|---|
-| First bounded chunk (new default) | `{ "paper_id": "…" }` |
-| Continue reading | `{ "paper_id": "…", "start": <next_start> }` |
-| Custom chunk size | `{ "paper_id": "…", "max_chars": 5000 }` |
-| Old unbounded behavior | `{ "paper_id": "…", "return_full_text": true }` |
-
-Clients that already passed `max_chars` are unchanged. Only callers that relied on the omitted-`max_chars` = full-text behavior need to add `return_full_text: true` or page via `next_start`.
+Large-content responses include `content_length`, `returned_chars`, `next_start`, `is_truncated`, and (when truncated) `next_retrieval` with the next-call instruction. Pass `next_start` into the next call's `start` to continue reading. Pass an explicit `max_chars` to override the default chunk size, or `"return_full_text": true` to opt into an unbounded full-paper response.
 
 ### Read original LaTeX by section
 
@@ -362,25 +342,29 @@ Then call `get_paper_latex_section` using an ID from that outline:
 
 LaTeX archives are validated, size-limited, and cached locally before content is returned.
 
+### Find the code behind a paper
+
+Call `find_paper_code` with an arXiv ID (for example `1706.03762`). It returns the paper's GitHub repository with its star count, and the most popular Hugging Face models, datasets, and Spaces that reference the paper, so an agent can move from reading a method to running it. Repository and model-card text is external content and should be treated with the same care as paper text.
+
 ## Optional dependencies
 
 Choose the install variant that matches the features you need:
 
 ```bash
 # Base server
-uv tool install arxiv-mcp-server
+uv tool install arxsource-mcp
 
 # Base server plus PDF conversion
-uv tool install "arxiv-mcp-server[pdf]"
+uv tool install "arxsource-mcp[pdf]"
 
 # Base server plus local semantic search
-uv tool install "arxiv-mcp-server[pro]"
+uv tool install "arxsource-mcp[pro]"
 ```
 
 If the base tool is already installed, reinstall the selected variant:
 
 ```bash
-uv tool install --force "arxiv-mcp-server[pdf]"
+uv tool install --force "arxsource-mcp[pdf]"
 ```
 
 The `pdf` extra installs `pymupdf4llm` and `pymupdf-layout` for papers without usable arXiv HTML. The `pro` extra adds local embedding dependencies for `semantic_search` and `reindex`; semantic search only operates on papers already downloaded to the configured storage directory.
@@ -390,13 +374,13 @@ For older papers that require PDF conversion, run the package with its PDF extra
 ```json
 {
   "mcpServers": {
-    "arxiv": {
+    "arxsource": {
       "type": "stdio",
       "command": "uvx",
       "args": [
         "--from",
-        "arxiv-mcp-server[pdf]",
-        "arxiv-mcp-server"
+        "arxsource-mcp[pdf]",
+        "arxsource-mcp"
       ]
     }
   }
@@ -405,7 +389,7 @@ For older papers that require PDF conversion, run the package with its PDF extra
 
 ## Built-in prompts
 
-The server provides seven MCP prompt workflows. Prompt availability depends on the client; the server provides workflow instructions but does not run a separate model.
+ArxSource provides seven MCP prompt workflows. Prompt availability depends on the client; the server provides workflow instructions but does not run a separate model.
 
 | Prompt | Required arguments | Purpose |
 |---|---|---|
@@ -423,7 +407,7 @@ For deployments where stdio is not practical:
 
 ```bash
 TRANSPORT=http HOST=127.0.0.1 PORT=8080 \
-  uvx arxiv-mcp-server --storage-path /absolute/path/to/papers
+  uvx arxsource-mcp --storage-path /absolute/path/to/papers
 ```
 
 PowerShell:
@@ -432,7 +416,7 @@ PowerShell:
 $env:TRANSPORT = "http"
 $env:HOST = "127.0.0.1"
 $env:PORT = "8080"
-uvx arxiv-mcp-server --storage-path C:\absolute\path\to\papers
+uvx arxsource-mcp --storage-path C:\absolute\path\to\papers
 ```
 
 Connect clients to:
@@ -440,7 +424,7 @@ Connect clients to:
 ```json
 {
   "mcpServers": {
-    "arxiv": {
+    "arxsource": {
       "type": "http",
       "url": "http://127.0.0.1:8080/mcp"
     }
@@ -456,16 +440,16 @@ The server binds to `127.0.0.1` by default and enables MCP DNS-rebinding protect
 
 | Setting | Default | Purpose |
 |---|---:|---|
-| `--storage-path` | `~/.arxiv-mcp-server/papers` | Paper, source-cache, alert, and index storage |
+| `--storage-path` | `~/.arxsource/papers` | Paper, source-cache, alert, and index storage |
 | `MAX_RESULTS` | `50` | Server-side cap for result counts |
-| `ARXIV_REQUEST_TIMEOUT` | `30` | Per-attempt read timeout in seconds for all arXiv requests (API, HTML, PDF, LaTeX). Values ≤ 0 fall back to default. |
-| `REQUEST_TIMEOUT` | – | **Deprecated.** Legacy alias for `ARXIV_REQUEST_TIMEOUT` (applies to all requests). Only used when `ARXIV_REQUEST_TIMEOUT` is not set. Effective default: 30s. Values ≤ 0 fall back to default. |
-| `ARXIV_CONNECT_TIMEOUT` | `10` | Connection timeout in seconds for all arXiv requests. Values ≤ 0 fall back to default. |
-| `ARXIV_MAX_TOTAL_TIME` | `50` | Total budget in seconds for each tool call (HTML + PDF combined for `download_paper`). Values ≤ 0 fall back to default. **Note**: Very small budgets (under ~6s) may leave insufficient time for HTML-to-PDF fallback due to the process-wide 3s rate-limiter delay. |
-| `ARXIV_MAX_RETRIES` | `2` | Maximum retry attempts for transient failures (timeouts, connections, 429, 503) |
-| `ARXIV_HTTP_406_MAX_RETRIES` | `1` | Maximum retry attempts for HTTP 406 (IP-level throttling, use minimal retries) |
-| `ARXIV_INITIAL_BACKOFF` | `2.0` | Initial exponential backoff delay in seconds |
-| `ARXIV_MAX_BACKOFF` | `30` | Maximum backoff delay in seconds (Retry-After can exceed this and causes immediate rate_limited return). Values ≤ 0 fall back to default. |
+| `ARXSOURCE_REQUEST_TIMEOUT` | `30` | Per-attempt read timeout in seconds for all arXiv requests (API, HTML, PDF, LaTeX). Values ≤ 0 fall back to default. |
+| `REQUEST_TIMEOUT` | – | Unprefixed fallback for `ARXSOURCE_REQUEST_TIMEOUT`, used only when the prefixed variable is not set. Values ≤ 0 fall back to the 30s default. |
+| `ARXSOURCE_CONNECT_TIMEOUT` | `10` | Connection timeout in seconds for all arXiv requests. Values ≤ 0 fall back to default. |
+| `ARXSOURCE_MAX_TOTAL_TIME` | `50` | Total budget in seconds for each tool call (HTML + PDF combined for `download_paper`). Values ≤ 0 fall back to default. **Note**: Very small budgets (under ~6s) may leave insufficient time for HTML-to-PDF fallback due to the process-wide 3s rate-limiter delay. |
+| `ARXSOURCE_MAX_RETRIES` | `2` | Maximum retry attempts for transient failures (timeouts, connections, 429, 503) |
+| `ARXSOURCE_HTTP_406_MAX_RETRIES` | `1` | Maximum retry attempts for HTTP 406 (IP-level throttling, use minimal retries) |
+| `ARXSOURCE_INITIAL_BACKOFF` | `2.0` | Initial exponential backoff delay in seconds |
+| `ARXSOURCE_MAX_BACKOFF` | `30` | Maximum backoff delay in seconds (Retry-After can exceed this and causes immediate rate_limited return). Values ≤ 0 fall back to default. |
 | `TRANSPORT` | `stdio` | `stdio`, `http`, or `streamable-http` |
 | `HOST` | `127.0.0.1` | HTTP bind host |
 | `PORT` | `8000` | HTTP bind port |
@@ -484,13 +468,13 @@ Paper text and LaTeX are untrusted external content. A paper can contain text in
 - Review generated summaries before taking external actions.
 - Keep Streamable HTTP private unless authentication is provided upstream.
 
-See [SECURITY.md](SECURITY.md) for the reporting policy and threat details.
+See [SECURITY.md](SECURITY.md) for the threat model and how to report a vulnerability privately.
 
 ## Development
 
 ```bash
-git clone https://github.com/blazickjp/arxiv-mcp-server.git
-cd arxiv-mcp-server
+git clone https://github.com/nicolaiprodromov/arxsource.git
+cd arxsource
 uv sync --extra test --extra dev
 uv run pytest
 uv run black --check .
@@ -501,22 +485,25 @@ Run the development checkout from an MCP client with:
 ```json
 {
   "mcpServers": {
-    "arxiv-dev": {
+    "arxsource-dev": {
       "command": "uv",
       "args": [
         "--directory",
-        "/absolute/path/to/arxiv-mcp-server",
+        "/absolute/path/to/arxsource",
         "run",
-        "arxiv-mcp-server"
+        "arxsource-mcp"
       ]
     }
   }
 }
 ```
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and use [GitHub Issues](https://github.com/blazickjp/arxiv-mcp-server/issues) for reproducible bugs or scoped feature proposals.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and use [GitHub Issues](https://github.com/nicolaiprodromov/arxsource/issues) for reproducible bugs or scoped feature proposals. Release notes are in [CHANGELOG.md](CHANGELOG.md).
+
+## Acknowledgements
+
+ArxSource is derived from [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) by Joseph Blazick, licensed under Apache-2.0; see [NOTICE](NOTICE).
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE).
-
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

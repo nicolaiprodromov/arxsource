@@ -8,14 +8,14 @@ Security fixes are provided for the latest published release. Users should upgra
 
 Do not open a public GitHub issue for suspected vulnerabilities.
 
-Email `joe.blazick@yahoo.com` with the subject `SECURITY: arxiv-mcp-server`. Include:
+Report it privately through GitHub's private vulnerability reporting: open the [Security tab](https://github.com/nicolaiprodromov/arxsource/security) of the repository and choose **Report a vulnerability** ([direct link](https://github.com/nicolaiprodromov/arxsource/security/advisories/new)). Include:
 
 - affected version and installation method
 - impact and attack scenario
 - minimal reproduction steps or proof of concept
 - suggested mitigation, if known
 
-Reports are handled on a best-effort basis. This is an open-source project maintained in spare time and has no guaranteed response SLA.
+Reports are handled on a best-effort basis; there is no guaranteed response time. Confirmed issues are fixed in a new release and disclosed through a GitHub security advisory.
 
 ## Threat model
 
