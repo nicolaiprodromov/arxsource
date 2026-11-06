@@ -1,29 +1,29 @@
 {
-  "name": "arxiv-mcp-server",
-  "version": "0.8.2",
-  "description": "Search arXiv, read bounded full text and original LaTeX, follow citations, and monitor research topics through MCP.",
+  "name": "arxsource-mcp",
+  "version": "0.1.0",
+  "description": "Search arXiv, read bounded full text and original LaTeX, follow citations, monitor research topics, and find the code behind a paper through MCP.",
   "author": {
-    "name": "Joseph Blazick",
-    "url": "https://github.com/blazickjp"
+    "name": "nicolaiprodromov",
+    "url": "https://github.com/nicolaiprodromov"
   },
-  "homepage": "https://github.com/blazickjp/arxiv-mcp-server",
-  "repository": "https://github.com/blazickjp/arxiv-mcp-server",
+  "homepage": "https://github.com/nicolaiprodromov/arxsource",
+  "repository": "https://github.com/nicolaiprodromov/arxsource",
   "license": "Apache-2.0",
-  "keywords": ["mcp", "codex", "arxiv", "research", "academic", "latex"],
+  "keywords": ["mcp", "codex", "arxiv", "research", "academic", "latex", "github", "huggingface"],
   "mcpServers": "./.codex-mcp.json",
   "skills": "./skills/",
   "interface": {
-    "displayName": "arXiv MCP Server",
-    "shortDescription": "Research arXiv papers with bounded full-text and LaTeX retrieval.",
-    "longDescription": "Adds arXiv search, abstracts, bounded paper reading, original LaTeX section retrieval, citation graphs, local semantic search, and research alerts.",
-    "developerName": "Joseph Blazick",
+    "displayName": "ArxSource",
+    "shortDescription": "Read the paper. Find the source.",
+    "longDescription": "Adds arXiv search, abstracts, bounded paper reading, original LaTeX section retrieval, citation graphs, BibTeX export, local semantic search, research alerts, and lookup of a paper's code repository and Hugging Face artifacts.",
+    "developerName": "nicolaiprodromov",
     "category": "Research",
     "capabilities": ["Read"],
-    "websiteURL": "https://github.com/blazickjp/arxiv-mcp-server",
+    "websiteURL": "https://github.com/nicolaiprodromov/arxsource",
     "defaultPrompt": [
       "Find recent papers on a research topic and compare their methods.",
       "Inspect the original LaTeX for an arXiv paper by section.",
-      "Trace the citations and references around an arXiv paper."
+      "Find the official code and Hugging Face models for an arXiv paper."
     ]
   }
 }

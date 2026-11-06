@@ -1,14 +1,15 @@
 {
   "$schema": "https://www.schemastore.org/claude-code-plugin-manifest.json",
-  "name": "arxiv-mcp-server",
-  "displayName": "arXiv MCP Server",
-  "version": "0.8.2",
-  "description": "Search, download, read, and analyze arXiv papers through MCP.",
+  "name": "arxsource-mcp",
+  "displayName": "ArxSource",
+  "version": "0.1.0",
+  "description": "Read the paper. Find the source. Search, read and analyze arXiv papers, and find their code, through MCP.",
   "author": {
-    "name": "Joseph Blazick"
+    "name": "nicolaiprodromov",
+    "url": "https://github.com/nicolaiprodromov"
   },
-  "homepage": "https://github.com/blazickjp/arxiv-mcp-server",
-  "repository": "https://github.com/blazickjp/arxiv-mcp-server",
+  "homepage": "https://github.com/nicolaiprodromov/arxsource",
+  "repository": "https://github.com/nicolaiprodromov/arxsource",
   "license": "Apache-2.0",
-  "keywords": ["arxiv", "research", "papers", "latex", "mcp"]
+  "keywords": ["arxiv", "research", "papers", "latex", "github", "huggingface", "mcp"]
 }

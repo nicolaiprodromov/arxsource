@@ -1,11 +1,11 @@
 {
-  "name": "arxiv-mcp",
+  "name": "arxsource",
   "interface": {
-    "displayName": "arXiv MCP"
+    "displayName": "ArxSource"
   },
   "plugins": [
     {
-      "name": "arxiv-mcp-server",
+      "name": "arxsource-mcp",
       "source": {
         "source": "local",
         "path": "./"

@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "arxiv": {
+    "arxsource": {
       "command": "uvx",
-      "args": ["arxiv-mcp-server"]
+      "args": ["arxsource-mcp"]
     }
   }
 }

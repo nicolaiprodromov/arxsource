@@ -1,15 +1,15 @@
 {
   "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
-  "name": "arxiv-mcp",
-  "description": "Claude Code integration for searching and analyzing arXiv papers.",
+  "name": "arxsource",
+  "description": "ArxSource for Claude Code: search, read and analyze arXiv papers, and find their code.",
   "owner": {
-    "name": "Joseph Blazick"
+    "name": "nicolaiprodromov"
   },
   "plugins": [
     {
-      "name": "arxiv-mcp-server",
+      "name": "arxsource-mcp",
       "source": "./",
-      "description": "Search, download, read, and analyze arXiv papers through MCP.",
+      "description": "Search, read and analyze arXiv papers, and find their code, through MCP.",
       "category": "research"
     }
   ]

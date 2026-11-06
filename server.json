@@ -1,36 +1,38 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.blazickjp/arxiv-mcp-server",
-  "version": "0.8.2",
-  "description": "Search arXiv papers, download full text, semantic search, citation graphs, and alerts via MCP.",
+  "name": "io.github.nicolaiprodromov/arxsource",
+  "title": "ArxSource",
+  "version": "0.1.0",
+  "description": "Search, read and analyze arXiv papers, and find their code: LaTeX, citations, alerts.",
   "repository": {
-    "url": "https://github.com/blazickjp/arxiv-mcp-server",
+    "url": "https://github.com/nicolaiprodromov/arxsource",
     "source": "github"
   },
+  "websiteUrl": "https://github.com/nicolaiprodromov/arxsource",
   "packages": [
     {
       "registryType": "pypi",
       "registryBaseUrl": "https://pypi.org",
-      "identifier": "arxiv-mcp-server",
-      "version": "0.8.2",
+      "identifier": "arxsource-mcp",
+      "version": "0.1.0",
       "runtimeHint": "uvx",
       "transport": {
         "type": "stdio"
       },
       "runtimeArguments": [
-        { "type": "positional", "value": "arxiv-mcp-server" }
+        { "type": "positional", "value": "arxsource-mcp" }
       ],
       "packageArguments": [
         {
           "type": "named",
           "name": "--storage-path",
-          "value": "${ARXIV_STORAGE_PATH}",
-          "description": "Directory for storing downloaded papers. Defaults to ~/.arxiv-mcp-server/papers."
+          "value": "${ARXSOURCE_STORAGE_PATH}",
+          "description": "Directory for storing downloaded papers. Defaults to ~/.arxsource/papers."
         }
       ],
       "environmentVariables": [
         {
-          "name": "ARXIV_STORAGE_PATH",
+          "name": "ARXSOURCE_STORAGE_PATH",
           "description": "Optional path for storing downloaded papers locally.",
           "isRequired": false,
           "isSecret": false

@@ -1,29 +1,30 @@
 {
   "manifest_version": "0.3",
-  "name": "arxiv-mcp-server",
-  "display_name": "ArXiv MCP Server",
-  "version": "0.8.2",
-  "description": "Search, download, and analyze arXiv papers via MCP.",
+  "name": "arxsource-mcp",
+  "display_name": "ArxSource",
+  "version": "0.1.0",
+  "description": "Read the paper. Find the source. Search, read and analyze arXiv papers, and find their code.",
   "author": {
-    "name": "Joseph Blazick",
-    "email": "joe.blazick@yahoo.com"
+    "name": "nicolaiprodromov",
+    "email": "57862822+nicolaiprodromov@users.noreply.github.com",
+    "url": "https://github.com/nicolaiprodromov"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/blazickjp/arxiv-mcp-server.git"
+    "url": "https://github.com/nicolaiprodromov/arxsource.git"
   },
-  "homepage": "https://github.com/blazickjp/arxiv-mcp-server",
-  "documentation": "https://github.com/blazickjp/arxiv-mcp-server#readme",
-  "support": "https://github.com/blazickjp/arxiv-mcp-server/issues",
+  "homepage": "https://github.com/nicolaiprodromov/arxsource",
+  "documentation": "https://github.com/nicolaiprodromov/arxsource#readme",
+  "support": "https://github.com/nicolaiprodromov/arxsource/issues",
   "icon": "icon.png",
   "server": {
     "type": "python",
-    "entry_point": "server/arxiv_mcp_server/__main__.py",
+    "entry_point": "server/arxsource_mcp/__main__.py",
     "mcp_config": {
       "command": "python3.11",
       "args": [
         "-m",
-        "arxiv_mcp_server",
+        "arxsource_mcp",
         "--storage-path",
         "${user_config.storage_path}"
       ],
@@ -36,8 +37,11 @@
     "arxiv",
     "research",
     "papers",
-    "semantic-search",
+    "latex",
     "citation-graphs",
+    "github",
+    "huggingface",
+    "semantic-search",
     "mcp"
   ],
   "license": "Apache-2.0",
@@ -54,7 +58,7 @@
       "title": "Paper Storage Directory",
       "description": "Local directory for storing downloaded arXiv papers.",
       "required": false,
-      "default": "${HOME}/.arxiv-mcp-server/papers"
+      "default": "${HOME}/.arxsource/papers"
     }
   }
 }

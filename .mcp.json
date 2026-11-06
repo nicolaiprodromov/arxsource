@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "arxiv": {
+    "arxsource": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["arxiv-mcp-server"]
+      "args": ["arxsource-mcp"]
     }
   }
 }
