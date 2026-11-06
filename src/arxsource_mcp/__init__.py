@@ -1,5 +1,5 @@
 """
-Arxiv MCP Server initialization
+ArxSource initialization
 """
 
 from . import server

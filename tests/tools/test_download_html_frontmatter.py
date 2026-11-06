@@ -1,6 +1,6 @@
 """HTML extract: author/CCS front-matter and \\times cleanup (#239)."""
 
-from arxiv_mcp_server.tools.download import EXTRACTOR_VERSION, _html_to_text
+from arxsource_mcp.tools.download import EXTRACTOR_VERSION, _html_to_text
 
 # Representative latexml snippet shaped like ExpertFlow (2410.17954):
 # pubnotes in the title, affiliation superscripts, and bare \\times math.

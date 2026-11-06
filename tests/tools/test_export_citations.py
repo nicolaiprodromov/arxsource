@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools import export_citations as ec
+from arxsource_mcp.tools import export_citations as ec
 
 
 def _paper(
@@ -53,7 +53,7 @@ def _stub_metadata(monkeypatch, papers, recorder=None):
             if existing is None:
                 latest_by_bare[p["id"]] = p
             else:
-                from arxiv_mcp_server.tools.arxiv_ids import arxiv_version_number
+                from arxsource_mcp.tools.arxiv_ids import arxiv_version_number
 
                 if arxiv_version_number(versioned) > arxiv_version_number(
                     existing.get("versioned_id") or ""
@@ -245,7 +245,7 @@ async def test_all_failed_batch_is_mcp_error_but_keeps_diagnostics(monkeypatch):
     at the protocol level, since calling the handler directly bypasses dispatch.
     """
     import mcp.types as types
-    from arxiv_mcp_server import server as server_module
+    from arxsource_mcp import server as server_module
 
     _stub_metadata(monkeypatch, [])
     handler = server_module.server.request_handlers[types.CallToolRequest]
@@ -324,7 +324,7 @@ async def test_too_many_ids_rejected(monkeypatch):
 
 async def test_tool_registered_in_server():
     """Assert against the server's advertised tool list, not just the export."""
-    from arxiv_mcp_server.server import list_tools
+    from arxsource_mcp.server import list_tools
 
     tools = {tool.name: tool for tool in await list_tools()}
     assert "export_citations" in tools
@@ -638,7 +638,7 @@ async def test_fetch_metadata_keeps_each_versioned_entry(monkeypatch):
 async def test_rate_limit_error_returns_rate_limited_response(monkeypatch):
     """ArxivRateLimitError should return status=rate_limited with retry info (#277)."""
     from unittest.mock import AsyncMock
-    from arxiv_mcp_server.tools.search import ArxivRateLimitError
+    from arxsource_mcp.tools.search import ArxivRateLimitError
 
     monkeypatch.setattr(
         ec,

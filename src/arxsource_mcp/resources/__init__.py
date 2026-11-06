@@ -1,4 +1,4 @@
-"""Resource management for the arXiv MCP server."""
+"""Resource management for ArxSource."""
 
 from typing import Any
 

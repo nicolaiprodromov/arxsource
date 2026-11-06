@@ -1,6 +1,6 @@
 """
-Arxiv MCP Server
-===============
+ArxSource
+=========
 
 This module implements an MCP server for interacting with arXiv.
 """
@@ -63,7 +63,7 @@ from .prompts.handlers import get_prompt as handler_get_prompt
 from .tools.download import shutdown_background_tasks
 
 settings = Settings()
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 logger.setLevel(logging.INFO)
 server = Server(settings.APP_NAME)
 

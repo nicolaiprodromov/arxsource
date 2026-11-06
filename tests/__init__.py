@@ -1,1 +1,1 @@
-"""Tests for arxiv-mcp-server."""
+"""Tests for arxsource-mcp."""

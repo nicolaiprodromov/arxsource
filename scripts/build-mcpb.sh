@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Build an MCPB bundle for arxiv-mcp-server.
-# Outputs: mcpb-build/arxiv-mcp-server-darwin-<arch>-<version>.mcpb
+# Build an MCPB bundle for arxsource-mcp.
+# Outputs: mcpb-build/arxsource-mcp-darwin-<arch>-<version>.mcpb
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -32,7 +32,7 @@ print(match.group(1))
 PYEOF
 )"
 
-echo "Building arxiv-mcp-server v$VERSION MCPB bundle..."
+echo "Building arxsource-mcp v$VERSION MCPB bundle..."
 
 # Clean and create structure
 rm -rf "$BUILD_DIR"
@@ -71,9 +71,12 @@ with open(sys.argv[2], 'w') as f:
 print(f"Stamped manifest version: {sys.argv[3]}")
 PYEOF
 
+# Ship the license and attribution notice with the bundle (Apache-2.0 sections 4(a) and 4(d))
+cp "$ROOT/LICENSE" "$ROOT/NOTICE" "$BUILD_DIR/"
+
 # Copy server source
-cp -R "$ROOT/src/arxiv_mcp_server" "$BUILD_DIR/server/arxiv_mcp_server"
-"$PYTHON_BIN" - "$BUILD_DIR/server/arxiv_mcp_server/_bundle_version.py" "$VERSION" <<'PYEOF'
+cp -R "$ROOT/src/arxsource_mcp" "$BUILD_DIR/server/arxsource_mcp"
+"$PYTHON_BIN" - "$BUILD_DIR/server/arxsource_mcp/_bundle_version.py" "$VERSION" <<'PYEOF'
 from pathlib import Path
 import sys
 
@@ -171,7 +174,7 @@ if [[ -z "$ARTIFACT" ]]; then
 fi
 
 ARCH="$(uname -m)"
-FINAL_ARTIFACT="$BUILD_DIR/arxiv-mcp-server-darwin-$ARCH-$VERSION.mcpb"
+FINAL_ARTIFACT="$BUILD_DIR/arxsource-mcp-darwin-$ARCH-$VERSION.mcpb"
 if [[ "$ARTIFACT" != "$FINAL_ARTIFACT" ]]; then
   mv "$ARTIFACT" "$FINAL_ARTIFACT"
 fi

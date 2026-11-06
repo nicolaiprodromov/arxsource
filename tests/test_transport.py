@@ -6,8 +6,8 @@ import pytest
 
 from mcp.server.transport_security import TransportSecurityMiddleware
 
-from arxiv_mcp_server import server as server_module
-from arxiv_mcp_server.config import Settings
+from arxsource_mcp import server as server_module
+from arxsource_mcp.config import Settings
 
 
 @pytest.mark.asyncio

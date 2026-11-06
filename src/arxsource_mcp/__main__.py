@@ -1,4 +1,4 @@
-"""Main entry point for the arxiv-mcp-server package."""
+"""Main entry point for the arxsource-mcp package."""
 
 from . import main
 

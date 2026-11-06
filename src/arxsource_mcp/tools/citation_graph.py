@@ -23,7 +23,7 @@ from .arxiv_ids import (
     normalize_arxiv_id,
 )
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 SEMANTIC_SCHOLAR_API_URL = "https://api.semanticscholar.org/graph/v1"
@@ -121,7 +121,7 @@ def _s2_headers() -> Dict[str, str]:
     headers = {
         "User-Agent": (
             f"{settings.APP_NAME}/{settings.APP_VERSION} "
-            "(https://github.com/blazickjp/arxiv-mcp-server; research tool)"
+            "(https://github.com/nicolaiprodromov/arxsource; research tool)"
         )
     }
     api_key = (settings.SEMANTIC_SCHOLAR_API_KEY or "").strip()
@@ -311,10 +311,10 @@ async def _s2_get(
     try:
         return await retry_with_backoff(
             request,
-            max_retries=settings.ARXIV_MAX_RETRIES,
-            initial_backoff=settings.ARXIV_INITIAL_BACKOFF,
-            max_backoff=settings.ARXIV_MAX_BACKOFF,
-            max_total_time=float(settings.ARXIV_MAX_TOTAL_TIME),
+            max_retries=settings.ARXSOURCE_MAX_RETRIES,
+            initial_backoff=settings.ARXSOURCE_INITIAL_BACKOFF,
+            max_backoff=settings.ARXSOURCE_MAX_BACKOFF,
+            max_total_time=float(settings.ARXSOURCE_MAX_TOTAL_TIME),
             operation_name="Semantic Scholar API request",
         )
     except Exception as e:
@@ -469,7 +469,7 @@ async def handle_citation_graph(arguments: Dict[str, Any]) -> List[types.TextCon
         }
 
         timeout = httpx.Timeout(
-            connect=float(settings.ARXIV_CONNECT_TIMEOUT),
+            connect=float(settings.ARXSOURCE_CONNECT_TIMEOUT),
             read=float(settings.get_request_timeout()),
             write=30.0,
             pool=30.0,

@@ -20,7 +20,7 @@ from .search import (
     _raw_arxiv_search,
 )
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 WATCH_FILE_NAME = "watched_topics.json"

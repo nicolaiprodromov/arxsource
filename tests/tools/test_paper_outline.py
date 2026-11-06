@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools import paper_outline as outline_module
-from arxiv_mcp_server.tools.paper_outline import (
+from arxsource_mcp.tools import paper_outline as outline_module
+from arxsource_mcp.tools.paper_outline import (
     _find_section,
     handle_get_paper_outline,
     handle_read_paper_section,
@@ -615,7 +615,7 @@ Further analysis of model performance.
 
 
 # Real paper 2305.04388v2 (Turpin et al.) excerpt: References tail + appendices with table cells
-# Verbatim from arxiv-mcp-server HTML→text conversion
+# Verbatim from arxsource-mcp HTML→text conversion
 TURPIN_REAL_EXCERPT = """References
 
 The best answer is: (B)

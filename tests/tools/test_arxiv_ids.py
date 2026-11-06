@@ -2,7 +2,7 @@
 
 import pytest
 
-from arxiv_mcp_server.tools.arxiv_ids import (
+from arxsource_mcp.tools.arxiv_ids import (
     arxiv_version_number,
     arxiv_version_suffix,
     bare_arxiv_id,
@@ -12,7 +12,7 @@ from arxiv_mcp_server.tools.arxiv_ids import (
     normalize_arxiv_id,
     parse_arxiv_id,
 )
-from arxiv_mcp_server.tools.list_papers import is_valid_arxiv_id as list_reexport
+from arxsource_mcp.tools.list_papers import is_valid_arxiv_id as list_reexport
 
 
 @pytest.mark.parametrize(

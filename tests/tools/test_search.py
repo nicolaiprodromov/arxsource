@@ -4,9 +4,9 @@ import pytest
 import json
 import httpx
 from unittest.mock import patch, MagicMock, AsyncMock
-from arxiv_mcp_server.tools import handle_search
-from arxiv_mcp_server.tools import search as search_module
-from arxiv_mcp_server.tools.search import (
+from arxsource_mcp.tools import handle_search
+from arxsource_mcp.tools import search as search_module
+from arxsource_mcp.tools.search import (
     DEFAULT_ABSTRACT_MODE,
     DEFAULT_MAX_RESULTS,
     ABSTRACT_SNIPPET_CHARS,
@@ -30,7 +30,7 @@ from arxiv_mcp_server.tools.search import (
 @pytest.fixture(autouse=True)
 def disable_request_spacing_for_search_unit_tests(monkeypatch):
     """Keep search tests fast and isolate the process-wide client."""
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
     monkeypatch.setattr(search_module.ARXIV_RATE_LIMITER, "min_interval", 0.0)
     monkeypatch.setattr(search_module.ARXIV_RATE_LIMITER, "_last_started", 0.0)
@@ -445,7 +445,7 @@ async def test_search_invalid_sort_by_returns_json_error():
 @pytest.mark.asyncio
 async def test_search_no_query_optimization():
     """Test that queries are not automatically modified."""
-    from arxiv_mcp_server.tools.search import _optimize_query
+    from arxsource_mcp.tools.search import _optimize_query
 
     # Test that complex queries are not mangled
     complex_query = "graph neural networks message passing attention mechanism"
@@ -758,7 +758,7 @@ async def test_search_end_of_results_no_next_start_without_dates():
 
 def test_search_tool_schema_includes_start():
     """Tool schema exposes optional start (>=0) for pagination."""
-    from arxiv_mcp_server.tools.search import search_tool
+    from arxsource_mcp.tools.search import search_tool
 
     props = search_tool.inputSchema["properties"]
     assert "start" in props
@@ -768,7 +768,7 @@ def test_search_tool_schema_includes_start():
 
 def test_search_tool_schema_includes_abstract_mode_and_defaults():
     """Tool schema documents compact defaults and abstract_mode (#128)."""
-    from arxiv_mcp_server.tools.search import search_tool
+    from arxsource_mcp.tools.search import search_tool
 
     props = search_tool.inputSchema["properties"]
     assert "abstract_mode" in props
@@ -1145,7 +1145,7 @@ async def test_search_no_criteria_returns_structured_error():
 
 def test_search_backoff_seconds_matches_citation_graph_pattern():
     """Backoff ladder should use exponential delay with jitter (#238)."""
-    from arxiv_mcp_server.arxiv_api import _compute_backoff_seconds
+    from arxsource_mcp.arxiv_api import _compute_backoff_seconds
     import random
 
     with patch.object(random, "random", return_value=0.5):
@@ -1204,10 +1204,10 @@ async def test_search_retries_on_429_then_succeeds():
 @pytest.mark.asyncio
 async def test_search_429_exhausted_returns_soft_rate_limited():
     """Persistent arXiv 429s soft-fail as status=rate_limited JSON (#238)."""
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    attempts = settings.ARXIV_MAX_RETRIES + 1
+    attempts = settings.ARXSOURCE_MAX_RETRIES + 1
     rate_limited = MagicMock()
     rate_limited.status_code = 429
     rate_limited.headers = {"Retry-After": "30"}
@@ -1238,7 +1238,7 @@ async def test_search_429_exhausted_returns_soft_rate_limited():
     assert content["retry_after_seconds"] == 30.0
     assert not result[0].text.startswith("Error:")
     assert mock_client.get.call_count == attempts
-    assert sleep.await_count == settings.ARXIV_MAX_RETRIES
+    assert sleep.await_count == settings.ARXSOURCE_MAX_RETRIES
 
 
 @pytest.mark.asyncio
@@ -1341,9 +1341,9 @@ async def test_search_406_exhausted_returns_soft_rate_limited():
     assert content["http_status"] == 406
     assert content["retry_after_seconds"] == 600.0
     assert not result[0].text.startswith("Error:")
-    # 406 should only retry minimally (ARXIV_HTTP_406_MAX_RETRIES + 1 attempts)
-    from arxiv_mcp_server.config import Settings
+    # 406 should only retry minimally (ARXSOURCE_HTTP_406_MAX_RETRIES + 1 attempts)
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    assert mock_client.get.call_count == settings.ARXIV_HTTP_406_MAX_RETRIES + 1
-    assert sleep.await_count == settings.ARXIV_HTTP_406_MAX_RETRIES
+    assert mock_client.get.call_count == settings.ARXSOURCE_HTTP_406_MAX_RETRIES + 1
+    assert sleep.await_count == settings.ARXSOURCE_HTTP_406_MAX_RETRIES

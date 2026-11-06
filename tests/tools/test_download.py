@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import arxiv
 
-from arxiv_mcp_server.arxiv_api import ArxivTimeoutError
-from arxiv_mcp_server.tools.download import (
+from arxsource_mcp.arxiv_api import ArxivTimeoutError
+from arxsource_mcp.tools.download import (
     EXTRACTOR_VERSION,
     handle_download,
     get_paper_path,
@@ -24,7 +24,7 @@ from arxiv_mcp_server.tools.download import (
 @pytest.fixture
 def zero_rate_limit():
     """Zero out the arXiv rate limiter's min_interval for fast tests."""
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     original_interval = ARXIV_RATE_LIMITER.min_interval
     ARXIV_RATE_LIMITER.min_interval = 0.0
@@ -55,7 +55,7 @@ def _write_cached_paper(storage, paper_id, content, extractor_version=None):
 
 def test_download_arxiv_pdf_streams_via_httpx(temp_storage_path, mocker):
     """PDF streaming uses a canonical URL without relying on removed v4 attributes."""
-    import arxiv_mcp_server.arxiv_api as api
+    import arxsource_mcp.arxiv_api as api
 
     stream_response = MagicMock()
     stream_response.raise_for_status = MagicMock()
@@ -88,7 +88,7 @@ def test_download_arxiv_pdf_streams_via_httpx(temp_storage_path, mocker):
 
 def test_download_arxiv_pdf_supports_legacy_ids(temp_storage_path, mocker):
     """Canonical URLs retain legacy category-based arXiv IDs."""
-    import arxiv_mcp_server.arxiv_api as api
+    import arxsource_mcp.arxiv_api as api
 
     response = MagicMock()
     response.raise_for_status = MagicMock()
@@ -119,7 +119,7 @@ def test_download_arxiv_pdf_removes_partial_file_on_stream_failure(
     temp_storage_path, mocker
 ):
     """Failed downloads never leave a destination or staging file behind."""
-    import arxiv_mcp_server.arxiv_api as api
+    import arxsource_mcp.arxiv_api as api
 
     def chunks():
         yield b"partial"
@@ -151,7 +151,7 @@ def test_download_arxiv_pdf_removes_partial_file_on_stream_failure(
 
 def test_pdf_conversion_failure_removes_downloaded_pdf(temp_storage_path, mocker):
     """A converter exception must not retain a complete temporary PDF."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     paper = MagicMock(spec=arxiv.Result)
     client = MagicMock()
@@ -189,7 +189,7 @@ def test_pdf_conversion_failure_removes_downloaded_pdf(temp_storage_path, mocker
 @pytest.mark.asyncio
 async def test_index_task_not_created_without_semantic_dependencies(mocker):
     """Missing pro dependencies must not create orphan background tasks."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     create_task = mocker.patch.object(asyncio, "create_task")
     mocker.patch.object(
@@ -207,7 +207,7 @@ async def test_shutdown_waits_for_running_index_worker(mocker):
     """Shutdown must not return while a to_thread indexing worker is running."""
     import threading
 
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     worker_started = threading.Event()
     release_worker = threading.Event()
@@ -244,7 +244,7 @@ async def test_metadata_honors_remaining_deadline_after_html(mocker, temp_storag
     No real sleeps; verifies the deadline was passed and checked.
     """
     import time
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     mocker.patch.object(
         download_module.settings,
@@ -255,10 +255,10 @@ async def test_metadata_honors_remaining_deadline_after_html(mocker, temp_storag
     # Mock configuration: tight budget to force skip
     test_settings = MagicMock()
     test_settings.STORAGE_PATH = temp_storage_path
-    test_settings.ARXIV_MAX_TOTAL_TIME = 2
-    test_settings.ARXIV_REQUEST_TIMEOUT = 1
-    test_settings.ARXIV_CONNECT_TIMEOUT = 10
-    test_settings.ARXIV_MAX_RETRIES = 0
+    test_settings.ARXSOURCE_MAX_TOTAL_TIME = 2
+    test_settings.ARXSOURCE_REQUEST_TIMEOUT = 1
+    test_settings.ARXSOURCE_CONNECT_TIMEOUT = 10
+    test_settings.ARXSOURCE_MAX_RETRIES = 0
     test_settings.get_request_timeout = lambda: 1
     mocker.patch.object(download_module, "settings", test_settings)
 
@@ -329,7 +329,7 @@ async def test_metadata_skipped_gracefully_when_budget_exhausted(
     Verifies that when deadline + rate limiter wait exceeds budget, metadata returns None.
     """
     import time
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     mocker.patch.object(
         download_module.settings,
@@ -339,10 +339,10 @@ async def test_metadata_skipped_gracefully_when_budget_exhausted(
 
     test_settings = MagicMock()
     test_settings.STORAGE_PATH = temp_storage_path
-    test_settings.ARXIV_MAX_TOTAL_TIME = 3
-    test_settings.ARXIV_REQUEST_TIMEOUT = 1
-    test_settings.ARXIV_CONNECT_TIMEOUT = 10
-    test_settings.ARXIV_MAX_RETRIES = 0
+    test_settings.ARXSOURCE_MAX_TOTAL_TIME = 3
+    test_settings.ARXSOURCE_REQUEST_TIMEOUT = 1
+    test_settings.ARXSOURCE_CONNECT_TIMEOUT = 10
+    test_settings.ARXSOURCE_MAX_RETRIES = 0
     test_settings.get_request_timeout = lambda: 1
     mocker.patch.object(download_module, "settings", test_settings)
 
@@ -401,7 +401,7 @@ def test_same_paper_pdf_conversions_are_serialized(mocker):
     import threading
     from concurrent.futures import ThreadPoolExecutor
 
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     active = 0
     max_active = 0
@@ -489,7 +489,7 @@ async def test_download_paper_id_normalize_matrix(
     temp_storage_path, mocker, raw_id, expected
 ):
     """download_paper accepts bare / arxiv: / abs / pdf forms via parse_arxiv_id."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
 
     _write_cached_paper(temp_storage_path, expected, "# Cached\nNormalized ID path.")
     mocker.patch.object(
@@ -527,8 +527,8 @@ async def test_download_paper_defaults_to_bounded_cached_content(
     temp_storage_path, mocker
 ):
     """Omitting max_chars on download_paper returns a bounded chunk (#127)."""
-    from arxiv_mcp_server.tools import download as download_module
-    from arxiv_mcp_server.tools.content import DEFAULT_MAX_CHARS
+    from arxsource_mcp.tools import download as download_module
+    from arxsource_mcp.tools.content import DEFAULT_MAX_CHARS
 
     paper_id = "2103.12345"
     content = "C" * (DEFAULT_MAX_CHARS + 2_500)
@@ -562,8 +562,8 @@ async def test_download_paper_defaults_to_bounded_cached_content(
 
 @pytest.mark.asyncio
 async def test_download_paper_return_full_text_opt_in(temp_storage_path, mocker):
-    from arxiv_mcp_server.tools import download as download_module
-    from arxiv_mcp_server.tools.content import DEFAULT_MAX_CHARS
+    from arxsource_mcp.tools import download as download_module
+    from arxsource_mcp.tools.content import DEFAULT_MAX_CHARS
 
     paper_id = "2103.12345"
     content = "D" * (DEFAULT_MAX_CHARS + 1_200)
@@ -588,8 +588,8 @@ async def test_download_paper_return_full_text_opt_in(temp_storage_path, mocker)
 @pytest.mark.asyncio
 async def test_html_fetch_406_raises_rate_limit_error():
     """HTML fetch should raise ArxivRateLimitError on 406, not return None (#277)."""
-    from arxiv_mcp_server.tools.download import _fetch_html_content
-    from arxiv_mcp_server.arxiv_api import ArxivRateLimitError
+    from arxsource_mcp.tools.download import _fetch_html_content
+    from arxsource_mcp.arxiv_api import ArxivRateLimitError
     import httpx
     from unittest.mock import MagicMock, patch
     import time
@@ -613,9 +613,9 @@ async def test_html_fetch_406_raises_rate_limit_error():
 @pytest.mark.asyncio
 async def test_html_fetch_406_honors_retry_after_header():
     """HTML 406 should honor Retry-After header (issue C5_html406_RA30)."""
-    from arxiv_mcp_server.tools.download import _fetch_html_content
-    from arxiv_mcp_server.arxiv_api import ArxivRateLimitError
-    from arxiv_mcp_server import arxiv_api
+    from arxsource_mcp.tools.download import _fetch_html_content
+    from arxsource_mcp.arxiv_api import ArxivRateLimitError
+    from arxsource_mcp import arxiv_api
     from unittest.mock import MagicMock, patch
     import time
 
@@ -645,8 +645,8 @@ async def test_download_html_406_returns_rate_limited_response(
     temp_storage_path, mocker
 ):
     """Download should return rate_limited response when HTML fetch gets 406 (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
-    from arxiv_mcp_server.arxiv_api import ArxivRateLimitError
+    from arxsource_mcp.tools import download as download_module
+    from arxsource_mcp.arxiv_api import ArxivRateLimitError
 
     mocker.patch.object(
         download_module,
@@ -678,8 +678,8 @@ async def test_download_pdf_406_returns_rate_limited_response(
     temp_storage_path, mocker
 ):
     """Download should return rate_limited response when PDF fetch gets 406 (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
-    from arxiv_mcp_server.tools.search import ArxivRateLimitError
+    from arxsource_mcp.tools import download as download_module
+    from arxsource_mcp.tools.search import ArxivRateLimitError
 
     mocker.patch.object(
         download_module,
@@ -712,7 +712,7 @@ async def test_download_pdf_406_returns_rate_limited_response(
 @pytest.mark.asyncio
 async def test_download_pdf_http_error_no_traceback(temp_storage_path, mocker, caplog):
     """PDF HTTP errors should not log full traceback (#166, #277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import logging
 
     caplog.set_level(logging.ERROR)
@@ -745,8 +745,8 @@ async def test_download_pdf_http_error_no_traceback(temp_storage_path, mocker, c
 @pytest.mark.asyncio
 async def test_download_existence_check_500_no_url_leak(temp_storage_path, mocker):
     """Existence check HTTP 500 should not leak URL or log traceback (#166, #277)."""
-    from arxiv_mcp_server.tools import download as download_module
-    from arxiv_mcp_server.tools.search import ArxivRateLimitError
+    from arxsource_mcp.tools import download as download_module
+    from arxsource_mcp.tools.search import ArxivRateLimitError
     import httpx
     import logging
 
@@ -788,9 +788,9 @@ async def test_download_pdf_metadata_lookup_406_no_url_leak(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """PDF metadata lookup 406 should be rate_limited, not leak URL (#166, #277)."""
-    from arxiv_mcp_server.tools import download as download_module
-    from arxiv_mcp_server.tools.search import ArxivRateLimitError
-    from arxiv_mcp_server import arxiv_api
+    from arxsource_mcp.tools import download as download_module
+    from arxsource_mcp.tools.search import ArxivRateLimitError
+    from arxsource_mcp import arxiv_api
     import arxiv
     import httpx
 
@@ -832,7 +832,7 @@ async def test_download_pdf_metadata_lookup_500_no_url_leak(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """PDF metadata lookup 500 should not leak URL (#166, #277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import arxiv
 
     mocker.patch.object(
@@ -869,7 +869,7 @@ async def test_pdf_metadata_500_on_2406_id_not_406_rate_limit(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """HTTP 500 on paper 2406.xxxxx must NOT be reported as 406 rate limit (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import arxiv
     import httpx
 
@@ -908,7 +908,7 @@ async def test_pdf_metadata_500_on_2503_id_not_503_rate_limit(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """HTTP 500 on paper 2503.xxxxx must NOT be reported as 503 rate limit (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import arxiv
     import httpx
 
@@ -947,7 +947,7 @@ async def test_pdf_metadata_502_on_2406_id_not_406_rate_limit(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """HTTP 502 on paper 2406.xxxxx must NOT be reported as 406 rate limit (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import arxiv
 
     mocker.patch.object(
@@ -985,7 +985,7 @@ async def test_pdf_metadata_502_on_2503_id_not_503_rate_limit(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """HTTP 502 on paper 2503.xxxxx must NOT be reported as 503 rate limit (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import arxiv
 
     mocker.patch.object(
@@ -1023,7 +1023,7 @@ async def test_pdf_metadata_connection_error_on_2406_id(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """Connection error on paper 2406.xxxxx must not be falsely identified (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import requests
 
     mocker.patch.object(
@@ -1062,7 +1062,7 @@ async def test_pdf_metadata_connection_error_on_2503_id(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """Connection error on paper 2503.xxxxx must not be falsely identified (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import requests
 
     mocker.patch.object(
@@ -1101,7 +1101,7 @@ async def test_pdf_metadata_406_minimal_retries(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """PDF metadata lookup on 406 should use minimal retries (1 retry = 2 total) (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import arxiv
 
     mocker.patch.object(
@@ -1138,7 +1138,7 @@ async def test_pdf_metadata_network_error_clean_message(
     temp_storage_path, mocker, zero_rate_limit
 ):
     """Network errors during PDF metadata lookup should report cleanly without URL or traceback (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import requests
 
     mocker.patch.object(
@@ -1175,7 +1175,7 @@ async def test_pdf_metadata_network_error_no_traceback_or_url_in_logs(
     temp_storage_path, mocker, caplog, zero_rate_limit
 ):
     """Network errors during PDF metadata lookup should not log traceback or URL (#277)."""
-    from arxiv_mcp_server.tools import download as download_module
+    from arxsource_mcp.tools import download as download_module
     import requests
     import logging
 

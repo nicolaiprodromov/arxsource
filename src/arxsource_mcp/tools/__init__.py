@@ -1,4 +1,4 @@
-"""Tool definitions for the arXiv MCP server."""
+"""Tool definitions for ArxSource."""
 
 from .search import search_tool, handle_search
 from .download import download_tool, handle_download

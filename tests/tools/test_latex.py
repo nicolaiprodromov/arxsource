@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from arxiv_mcp_server.tools import latex
+from arxsource_mcp.tools import latex
 
 
 def _tar_bytes(
@@ -651,7 +651,7 @@ async def test_get_latex_section_reports_missing_section(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_server_registers_and_routes_latex_tools(monkeypatch):
-    from arxiv_mcp_server import server
+    from arxsource_mcp import server
 
     names = {tool.name for tool in await server.list_tools()}
     assert {

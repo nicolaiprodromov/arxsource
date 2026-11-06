@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools.download import (
+from arxsource_mcp.tools.download import (
     EXTRACTOR_VERSION,
     _html_to_text,
     handle_download,
@@ -40,7 +40,7 @@ HTML_FIRST_LINE = "Cacheable by Design? Training Mixture-of-Experts Routers"
 
 def _patch_path(mocker, storage):
     mocker.patch(
-        "arxiv_mcp_server.tools.download.get_paper_path",
+        "arxsource_mcp.tools.download.get_paper_path",
         side_effect=lambda pid, suffix=".md": storage / f"{pid}{suffix}",
     )
 
@@ -58,18 +58,18 @@ async def test_sidecar_uses_api_metadata_not_html_title(temp_storage_path, mocke
     paper_id = "2608.18261"
     _patch_path(mocker, temp_storage_path)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value=_html_to_text(SPLIT_TITLE_HTML),
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value={
             "title": API_TITLE,
             "authors": ["Shriniwas Ramesh Suram"],
             "published": "2026-08-20T00:00:00+00:00",
         },
     )
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -93,14 +93,14 @@ async def test_sidecar_nulls_when_api_fails_instead_of_html_scrape(
     paper_id = "2608.18261"
     _patch_path(mocker, temp_storage_path)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value=_html_to_text(SPLIT_TITLE_HTML),
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value=None,
     )
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -134,18 +134,18 @@ async def test_force_refresh_rewrites_sidecar_from_api(temp_storage_path, mocker
         encoding="utf-8",
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value=_html_to_text(SPLIT_TITLE_HTML),
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value={
             "title": API_TITLE,
             "authors": ["Shriniwas Ramesh Suram"],
             "published": "2026-08-20T00:00:00+00:00",
         },
     )
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id, "force": True})
     result = json.loads(response[0].text)

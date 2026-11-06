@@ -12,7 +12,7 @@ from ..config import Settings
 from ..arxiv_api import stream_pdf_to_path
 from ..tools.arxiv_ids import filesystem_arxiv_stem, logical_arxiv_id_from_stem
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 
 
 class PaperManager:
@@ -45,7 +45,7 @@ class PaperManager:
                 paper,
                 paper_pdf_path,
                 request_timeout=120.0,
-                user_agent="arxiv-mcp-server",
+                user_agent="arxsource",
             )
             markdown = pymupdf4llm.to_markdown(paper_pdf_path, show_progress=False)
 

@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
-from arxiv_mcp_server.tools import citation_graph as citation_graph_module
-from arxiv_mcp_server.tools.citation_graph import handle_citation_graph
+from arxsource_mcp.tools import citation_graph as citation_graph_module
+from arxsource_mcp.tools.citation_graph import handle_citation_graph
 
 # Updated payload to include citations and references in the paper response
 PAPER_PAYLOAD_WITH_CITATIONS_AND_REFERENCES = {
@@ -190,10 +190,10 @@ async def test_citation_graph_retries_on_429_then_succeeds():
 @pytest.mark.asyncio
 async def test_citation_graph_429_exhausted_returns_soft_rate_limited():
     """Persistent 429s should soft-fail with unmistakable API-key guidance."""
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    attempts = settings.ARXIV_MAX_RETRIES + 1
+    attempts = settings.ARXSOURCE_MAX_RETRIES + 1
     rate_limited = _json_response({}, status_code=429)
     mock_client = _mock_async_client([rate_limited] * attempts)
 
@@ -227,10 +227,10 @@ async def test_citation_graph_429_exhausted_returns_soft_rate_limited():
 @pytest.mark.asyncio
 async def test_citation_graph_429_exhausted_with_api_key_guidance():
     """When an API key is set, rate-limit guidance should mention that fact."""
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    attempts = settings.ARXIV_MAX_RETRIES + 1
+    attempts = settings.ARXSOURCE_MAX_RETRIES + 1
     rate_limited = _json_response({}, status_code=429)
     mock_client = _mock_async_client([rate_limited] * attempts)
 
@@ -256,10 +256,10 @@ async def test_citation_graph_429_exhausted_with_api_key_guidance():
 @pytest.mark.asyncio
 async def test_citation_graph_503_shows_service_unavailable_message():
     """HTTP 503 should show 'temporarily unavailable' not 'quota exhausted'."""
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    attempts = settings.ARXIV_MAX_RETRIES + 1
+    attempts = settings.ARXSOURCE_MAX_RETRIES + 1
     service_unavailable = _json_response({}, status_code=503)
     mock_client = _mock_async_client([service_unavailable] * attempts)
 
@@ -287,54 +287,72 @@ async def test_citation_graph_503_shows_service_unavailable_message():
 
 def test_backoff_seconds_longer_with_jitter():
     """Backoff should start higher than the old 1s ladder and include jitter."""
-    from arxiv_mcp_server.arxiv_api import _compute_backoff_seconds
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.arxiv_api import _compute_backoff_seconds
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
     with patch("random.random", return_value=0.5):
         # 0.5 jitter multiplier => delay * 1.0 (0.5 + 0.5)
         assert (
             _compute_backoff_seconds(
-                0, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                0,
+                None,
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 2.0
         )
         assert (
             _compute_backoff_seconds(
-                1, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                1,
+                None,
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 4.0
         )
         assert (
             _compute_backoff_seconds(
-                2, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                2,
+                None,
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 8.0
         )
         assert (
             _compute_backoff_seconds(
-                3, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                3,
+                None,
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 16.0
         )
         assert _compute_backoff_seconds(
-            4, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
-        ) == min(32.0, settings.ARXIV_MAX_BACKOFF)
+            4, None, settings.ARXSOURCE_INITIAL_BACKOFF, settings.ARXSOURCE_MAX_BACKOFF
+        ) == min(32.0, settings.ARXSOURCE_MAX_BACKOFF)
         assert _compute_backoff_seconds(
-            5, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
-        ) == min(64.0, settings.ARXIV_MAX_BACKOFF)
+            5, None, settings.ARXSOURCE_INITIAL_BACKOFF, settings.ARXSOURCE_MAX_BACKOFF
+        ) == min(64.0, settings.ARXSOURCE_MAX_BACKOFF)
 
     with patch("random.random", return_value=0.0):
         # Minimum jitter is 50% of the exponential delay.
         assert (
             _compute_backoff_seconds(
-                0, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                0,
+                None,
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 1.0
         )
         assert (
             _compute_backoff_seconds(
-                1, None, settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                1,
+                None,
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 2.0
         )
@@ -343,7 +361,10 @@ def test_backoff_seconds_longer_with_jitter():
         # Retry-After can raise the floor before jitter and is NOT capped at max_backoff.
         assert (
             _compute_backoff_seconds(
-                0, "45", settings.ARXIV_INITIAL_BACKOFF, settings.ARXIV_MAX_BACKOFF
+                0,
+                "45",
+                settings.ARXSOURCE_INITIAL_BACKOFF,
+                settings.ARXSOURCE_MAX_BACKOFF,
             )
             == 67.5  # 45 * 1.5 (jitter multiplier)
         )
@@ -570,10 +591,10 @@ async def test_citation_graph_cache_respects_max_citations():
 @pytest.mark.asyncio
 async def test_citation_graph_cache_rate_limited_expires_quickly():
     """Rate-limited results should expire quickly from cache."""
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    attempts = settings.ARXIV_MAX_RETRIES + 1
+    attempts = settings.ARXSOURCE_MAX_RETRIES + 1
     rate_limited = _json_response({}, status_code=429)
     mock_client = _mock_async_client([rate_limited] * attempts + [_success_response()])
 
@@ -613,10 +634,10 @@ async def test_citation_graph_cache_rate_limited_expires_quickly():
 @pytest.mark.asyncio
 async def test_citation_graph_rate_limited_cached_not_as_empty_success():
     """Rate-limited results ARE cached but served with unmistakable rate-limit markers, NOT as empty success."""
-    from arxiv_mcp_server.config import Settings
+    from arxsource_mcp.config import Settings
 
     settings = Settings()
-    attempts = settings.ARXIV_MAX_RETRIES + 1
+    attempts = settings.ARXSOURCE_MAX_RETRIES + 1
     rate_limited = _json_response({}, status_code=429)
     # Only provide responses for first call; second call should serve from cache
     mock_client = _mock_async_client([rate_limited] * attempts)
@@ -713,8 +734,8 @@ async def test_citation_graph_cache_can_serve_smaller_limit():
 @pytest.mark.asyncio
 async def test_s2_503_response_excludes_warning_and_hint():
     """S2 503 (service unavailable) should not show generic rate-limit warning or API key hint."""
-    from arxiv_mcp_server.tools import citation_graph as cg_module
-    from arxiv_mcp_server.tools.citation_graph import (
+    from arxsource_mcp.tools import citation_graph as cg_module
+    from arxsource_mcp.tools.citation_graph import (
         handle_citation_graph,
         SemanticScholarRateLimitError,
     )

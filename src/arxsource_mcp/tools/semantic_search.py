@@ -1,4 +1,4 @@
-"""Semantic search and indexing tools for the arXiv MCP server."""
+"""Semantic search and indexing tools for ArxSource."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from .list_papers import is_valid_arxiv_id
 np: Any = None
 SentenceTransformer: Any = None
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
@@ -53,8 +53,8 @@ semantic_search_tool = types.Tool(
         "IMPORTANT: only searches your local downloaded collection — will return empty results if no papers "
         "have been downloaded yet. Use search_papers to find papers on arXiv, then download_paper to add "
         "them to the local index before using this tool. "
-        "Requires pro dependencies: uvx --from 'arxiv-mcp-server[pro]' arxiv-mcp-server "
-        "(or uv tool install 'arxiv-mcp-server[pro]')."
+        "Requires pro dependencies: uvx --from 'arxsource-mcp[pro]' arxsource-mcp "
+        "(or uv tool install 'arxsource-mcp[pro]')."
     ),
     inputSchema={
         "type": "object",
@@ -118,8 +118,8 @@ def _dependency_error() -> Optional[str]:
     if not _load_dependencies():
         return (
             "Pro feature dependency missing. Install with "
-            "`uvx --from 'arxiv-mcp-server[pro]' arxiv-mcp-server` "
-            "(or `uv tool install 'arxiv-mcp-server[pro]'`). "
+            "`uvx --from 'arxsource-mcp[pro]' arxsource-mcp` "
+            "(or `uv tool install 'arxsource-mcp[pro]'`). "
             'For a local checkout: `uv pip install -e ".[pro]"`.'
         )
     return None

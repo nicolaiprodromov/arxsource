@@ -32,4 +32,4 @@ COPY --from=uv /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Set the default entrypoint
-ENTRYPOINT ["python", "-m", "arxiv_mcp_server"]
+ENTRYPOINT ["python", "-m", "arxsource_mcp"]

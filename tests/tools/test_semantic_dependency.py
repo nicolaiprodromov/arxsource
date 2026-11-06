@@ -1,6 +1,6 @@
 """Compatibility checks for the optional semantic-search dependency."""
 
-from arxiv_mcp_server.tools import semantic_search as semantic_module
+from arxsource_mcp.tools import semantic_search as semantic_module
 
 
 def test_get_model_uses_supported_sentence_transformer_constructor(monkeypatch):

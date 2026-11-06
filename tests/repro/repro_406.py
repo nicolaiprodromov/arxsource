@@ -1,4 +1,4 @@
-"""Local fault injection for arxiv-mcp-server 0.8.0; no live arXiv traffic."""
+"""Local fault injection for arxsource-mcp 0.8.0; no live arXiv traffic."""
 
 import asyncio
 import json
@@ -37,7 +37,7 @@ def run_server():
     httpx.get = html_get
     requests.sessions.Session.request = metadata_request
     sys.argv = [sys.argv[0], "--storage-path", sys.argv[2]]
-    from arxiv_mcp_server import main
+    from arxsource_mcp import main
 
     main()
 
@@ -121,10 +121,10 @@ async def run_client(http_server, directory):
             "NO_PROXY": "127.0.0.1,localhost",
             "no_proxy": "127.0.0.1,localhost",
             "REPRO_BASE": f"http://127.0.0.1:{http_server.server_port}",
-            "ARXIV_MAX_TOTAL_TIME": "7",
-            "ARXIV_REQUEST_TIMEOUT": "1",
-            "ARXIV_MAX_RETRIES": "0",
-            "ARXIV_HTTP_406_MAX_RETRIES": "0",
+            "ARXSOURCE_MAX_TOTAL_TIME": "7",
+            "ARXSOURCE_REQUEST_TIMEOUT": "1",
+            "ARXSOURCE_MAX_RETRIES": "0",
+            "ARXSOURCE_HTTP_406_MAX_RETRIES": "0",
         }
     )
     parameters = StdioServerParameters(

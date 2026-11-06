@@ -23,8 +23,8 @@ def _imported_after(statement: str) -> set[str]:
 
 
 def test_importing_server_does_not_load_optional_ml_or_pdf_stacks():
-    assert _imported_after("import arxiv_mcp_server.server") == set()
+    assert _imported_after("import arxsource_mcp.server") == set()
 
 
 def test_importing_resources_package_is_lightweight():
-    assert _imported_after("import arxiv_mcp_server.resources") == set()
+    assert _imported_after("import arxsource_mcp.resources") == set()

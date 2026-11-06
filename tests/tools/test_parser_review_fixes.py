@@ -1,7 +1,7 @@
 """Tests for parser regression fixes from PR #285 review."""
 
 import pytest
-from arxiv_mcp_server.tools.paper_outline import parse_markdown_sections
+from arxsource_mcp.tools.paper_outline import parse_markdown_sections
 
 
 def test_baseline_period_form_heading():

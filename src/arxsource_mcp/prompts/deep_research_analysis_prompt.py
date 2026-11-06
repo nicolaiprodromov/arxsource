@@ -1,4 +1,4 @@
-"""Deep research analysis prompt for the arXiv MCP server."""
+"""Deep research analysis prompt for ArxSource."""
 
 # Consolidated comprehensive paper analysis prompt
 PAPER_ANALYSIS_PROMPT = """

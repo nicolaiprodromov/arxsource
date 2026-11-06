@@ -19,7 +19,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from arxiv_mcp_server.tools.download import _fetch_arxiv_metadata
+from arxsource_mcp.tools.download import _fetch_arxiv_metadata
 
 FEED_XML = b"""<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
@@ -166,7 +166,7 @@ def test_trickle_returns_none_within_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),
@@ -199,7 +199,7 @@ def test_trickle_then_stall_returns_none_within_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),
@@ -232,7 +232,7 @@ def test_byte_by_byte_slow_returns_none_within_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),
@@ -280,7 +280,7 @@ def test_socket_unavailable_fallback_within_deadline(slow_server):
             return response
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),
@@ -321,11 +321,11 @@ def test_socket_timeout_mechanism_alone_enforces_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs_copy)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     # Disable watchdog and per-byte check via injectable flags
-    os.environ["_ARXIV_MCP_TEST_SKIP_WATCHDOG"] = "1"
-    os.environ["_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK"] = "1"
+    os.environ["_ARXSOURCE_TEST_SKIP_WATCHDOG"] = "1"
+    os.environ["_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK"] = "1"
     try:
         with (
             patch("requests.get", patched_get),
@@ -347,8 +347,8 @@ def test_socket_timeout_mechanism_alone_enforces_deadline(slow_server):
         ), f"Socket timeout took {elapsed:.2f}s, expected 2.5-3.5s"
         assert SlowHandler.request_count == 1
     finally:
-        os.environ.pop("_ARXIV_MCP_TEST_SKIP_WATCHDOG", None)
-        os.environ.pop("_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK", None)
+        os.environ.pop("_ARXSOURCE_TEST_SKIP_WATCHDOG", None)
+        os.environ.pop("_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK", None)
 
 
 def test_watchdog_mechanism_alone_enforces_deadline(slow_server):
@@ -371,11 +371,11 @@ def test_watchdog_mechanism_alone_enforces_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs_copy)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     # Disable socket timeout and per-byte check
-    os.environ["_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT"] = "1"
-    os.environ["_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK"] = "1"
+    os.environ["_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT"] = "1"
+    os.environ["_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK"] = "1"
     try:
         with (
             patch("requests.get", patched_get),
@@ -396,8 +396,8 @@ def test_watchdog_mechanism_alone_enforces_deadline(slow_server):
         assert 2.5 <= elapsed < 4.5, f"Watchdog took {elapsed:.2f}s, expected 2.5-4.5s"
         assert SlowHandler.request_count == 1
     finally:
-        os.environ.pop("_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT", None)
-        os.environ.pop("_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK", None)
+        os.environ.pop("_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT", None)
+        os.environ.pop("_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK", None)
 
 
 def test_per_byte_check_alone_enforces_deadline(slow_server):
@@ -420,11 +420,11 @@ def test_per_byte_check_alone_enforces_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs_copy)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     # Disable watchdog and socket timeout
-    os.environ["_ARXIV_MCP_TEST_SKIP_WATCHDOG"] = "1"
-    os.environ["_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT"] = "1"
+    os.environ["_ARXSOURCE_TEST_SKIP_WATCHDOG"] = "1"
+    os.environ["_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT"] = "1"
     try:
         with (
             patch("requests.get", patched_get),
@@ -446,8 +446,8 @@ def test_per_byte_check_alone_enforces_deadline(slow_server):
         ), f"Per-byte check took {elapsed:.2f}s, expected 2.5-3.5s"
         assert SlowHandler.request_count == 1
     finally:
-        os.environ.pop("_ARXIV_MCP_TEST_SKIP_WATCHDOG", None)
-        os.environ.pop("_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT", None)
+        os.environ.pop("_ARXSOURCE_TEST_SKIP_WATCHDOG", None)
+        os.environ.pop("_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT", None)
 
 
 def test_headers_stall_returns_none_within_deadline(slow_server):
@@ -465,7 +465,7 @@ def test_headers_stall_returns_none_within_deadline(slow_server):
             return original_get(slow_server + "/metadata", **kwargs)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),
@@ -498,7 +498,7 @@ def test_fast_response_succeeds(slow_server):
             return original_get(slow_server + "/metadata", **kwargs)
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),

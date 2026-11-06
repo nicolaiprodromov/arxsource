@@ -1,6 +1,6 @@
 """HTML extract: Switch Transformers author/cite/figure noise (#260)."""
 
-from arxiv_mcp_server.tools.download import EXTRACTOR_VERSION, _html_to_text
+from arxsource_mcp.tools.download import EXTRACTOR_VERSION, _html_to_text
 
 # Shaped like Switch Transformers (2101.03961): pre-title byline duplicates
 # ``ltx_authors``, journal heading/shortheadings notes, and latexml splits

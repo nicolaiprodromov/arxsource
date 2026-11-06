@@ -53,7 +53,7 @@ run_test "test_socket_timeout_mechanism_alone_enforces_deadline" "" "PASS"
 
 echo ""
 echo "Mutation: Remove socket timeout (skip it):"
-run_test "test_socket_timeout_mechanism_alone_enforces_deadline" "_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT=1" "FAIL"
+run_test "test_socket_timeout_mechanism_alone_enforces_deadline" "_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT=1" "FAIL"
 
 echo ""
 echo "## 2. Watchdog mechanism alone"
@@ -62,7 +62,7 @@ run_test "test_watchdog_mechanism_alone_enforces_deadline" "" "PASS"
 
 echo ""
 echo "Mutation: Remove watchdog (skip it):"
-run_test "test_watchdog_mechanism_alone_enforces_deadline" "_ARXIV_MCP_TEST_SKIP_WATCHDOG=1" "FAIL"
+run_test "test_watchdog_mechanism_alone_enforces_deadline" "_ARXSOURCE_TEST_SKIP_WATCHDOG=1" "FAIL"
 
 echo ""
 echo "## 3. Per-byte check mechanism alone"
@@ -71,7 +71,7 @@ run_test "test_per_byte_check_alone_enforces_deadline" "" "PASS"
 
 echo ""
 echo "Mutation: Remove per-byte check (skip it):"
-run_test "test_per_byte_check_alone_enforces_deadline" "_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK=1" "FAIL"
+run_test "test_per_byte_check_alone_enforces_deadline" "_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK=1" "FAIL"
 
 echo ""
 echo "## 4. Socket unavailable fallback (thread backstop)"
@@ -80,12 +80,12 @@ run_test "test_socket_unavailable_fallback_within_deadline" "" "PASS"
 
 echo ""
 echo "Mutation: Remove thread backstop (skip it):"
-run_test "test_socket_unavailable_fallback_within_deadline" "_ARXIV_MCP_TEST_SKIP_THREAD_BACKSTOP=1" "FAIL"
+run_test "test_socket_unavailable_fallback_within_deadline" "_ARXSOURCE_TEST_SKIP_THREAD_BACKSTOP=1" "FAIL"
 
 echo ""
 echo "## 5. All three mechanisms disabled (should stall)"
 echo "Test socket timeout with all disabled:"
-run_test "test_socket_timeout_mechanism_alone_enforces_deadline" "_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT=1 _ARXIV_MCP_TEST_SKIP_WATCHDOG=1 _ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK=1" "FAIL"
+run_test "test_socket_timeout_mechanism_alone_enforces_deadline" "_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT=1 _ARXSOURCE_TEST_SKIP_WATCHDOG=1 _ARXSOURCE_TEST_SKIP_PERBYTE_CHECK=1" "FAIL"
 
 echo ""
 echo "=== MUTATION TABLE COMPLETE ==="

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import arxiv
 import pytest
 
-from arxiv_mcp_server.tools.download import (
+from arxsource_mcp.tools.download import (
     EXTRACTOR_VERSION,
     PaperNotFoundError,
     _html_to_text,
@@ -134,7 +134,7 @@ def _stamp(storage, paper_id, content):
 
 def _patch_path(mocker, storage):
     mocker.patch(
-        "arxiv_mcp_server.tools.download.get_paper_path",
+        "arxsource_mcp.tools.download.get_paper_path",
         side_effect=lambda pid, suffix=".md": storage / f"{pid}{suffix}",
     )
 
@@ -145,8 +145,8 @@ async def test_cached_paper_returns_immediately(temp_storage_path, mocker):
     paper_id = "2103.12345"
     _patch_path(mocker, temp_storage_path)
     _stamp(temp_storage_path, paper_id, "# Cached Paper\nThis is cached content.")
-    mock_httpx = mocker.patch("arxiv_mcp_server.tools.download._fetch_html_content")
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_httpx = mocker.patch("arxsource_mcp.tools.download._fetch_html_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -168,8 +168,8 @@ async def test_download_cache_supports_content_pagination(temp_storage_path, moc
     _patch_path(mocker, temp_storage_path)
     content = "abcdefghijklmnopqrstuvwxyz"
     _stamp(temp_storage_path, paper_id, content)
-    mock_httpx = mocker.patch("arxiv_mcp_server.tools.download._fetch_html_content")
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_httpx = mocker.patch("arxsource_mcp.tools.download._fetch_html_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download(
         {"paper_id": paper_id, "start": 10, "max_chars": 5}
@@ -197,12 +197,12 @@ async def test_html_endpoint_success(temp_storage_path, mocker):
     _patch_path(mocker, temp_storage_path)
     html_text = "Title of the Paper\nAbstract content goes here."
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=html_text
+        "arxsource_mcp.tools.download._fetch_html_content", return_value=html_text
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata", return_value=None
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata", return_value=None
     )
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -223,18 +223,16 @@ async def test_html_404_falls_back_to_pdf(temp_storage_path, mocker):
     """HTML endpoint returns None (404) -> falls back to PDF conversion."""
     paper_id = "2103.22222"
     _patch_path(mocker, temp_storage_path)
-    mocker.patch("arxiv_mcp_server.tools.download._pdf_available", True)
+    mocker.patch("arxsource_mcp.tools.download._pdf_available", True)
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content", return_value=None)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=None
-    )
-    mocker.patch(
-        "arxiv_mcp_server.tools.download._paper_exists_on_arxiv",
+        "arxsource_mcp.tools.download._paper_exists_on_arxiv",
         return_value=True,
     )
     mock_arxiv_result = MagicMock(spec=arxiv.Result)
     pdf_markdown = "# PDF Paper\nConverted from PDF."
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_pdf_content",
+        "arxsource_mcp.tools.download._fetch_pdf_content",
         return_value=(pdf_markdown, mock_arxiv_result),
     )
 
@@ -256,16 +254,14 @@ async def test_paper_not_found_on_arxiv(temp_storage_path, mocker):
     """Missing paper detected before PDF fallback -> error message returned."""
     paper_id = "9999.99999"
     _patch_path(mocker, temp_storage_path)
-    mocker.patch("arxiv_mcp_server.tools.download._pdf_available", True)
+    mocker.patch("arxsource_mcp.tools.download._pdf_available", True)
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content", return_value=None)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=None
-    )
-    mocker.patch(
-        "arxiv_mcp_server.tools.download._paper_exists_on_arxiv",
+        "arxsource_mcp.tools.download._paper_exists_on_arxiv",
         return_value=False,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_pdf_content",
+        "arxsource_mcp.tools.download._fetch_pdf_content",
         side_effect=PaperNotFoundError(f"Paper {paper_id} not found on arXiv"),
     )
 
@@ -282,18 +278,18 @@ async def test_html_download_persists_local_metadata(temp_storage_path, mocker):
     paper_id = "2103.55555"
     _patch_path(mocker, temp_storage_path)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value="Attention Is All You Need\nAbstract body.",
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value={
             "title": "Attention Is All You Need",
             "authors": ["Ashish Vaswani"],
             "published": "2017-06-12T00:00:00+00:00",
         },
     )
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -316,19 +312,17 @@ async def test_pdf_download_persists_metadata_from_arxiv_result(
     """PDF fallback already has an arXiv result — persist it locally."""
     paper_id = "2103.66666"
     _patch_path(mocker, temp_storage_path)
-    mocker.patch("arxiv_mcp_server.tools.download._pdf_available", True)
+    mocker.patch("arxsource_mcp.tools.download._pdf_available", True)
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content", return_value=None)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=None
-    )
-    mocker.patch(
-        "arxiv_mcp_server.tools.download._paper_exists_on_arxiv",
+        "arxsource_mcp.tools.download._paper_exists_on_arxiv",
         return_value=True,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_pdf_content",
+        "arxsource_mcp.tools.download._fetch_pdf_content",
         return_value=("# Test Paper\nConverted from PDF.", mock_paper),
     )
-    fetch_meta = mocker.patch("arxiv_mcp_server.tools.download._fetch_arxiv_metadata")
+    fetch_meta = mocker.patch("arxsource_mcp.tools.download._fetch_arxiv_metadata")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -349,19 +343,17 @@ async def test_missing_paper_reports_not_found_not_pdf_extra(temp_storage_path, 
     """Nonexistent paper must not be misreported as a missing [pdf] extra (#196)."""
     paper_id = "9999.99999"
     _patch_path(mocker, temp_storage_path)
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content", return_value=None)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=None
-    )
-    mocker.patch(
-        "arxiv_mcp_server.tools.download._paper_exists_on_arxiv",
+        "arxsource_mcp.tools.download._paper_exists_on_arxiv",
         return_value=False,
     )
     # PDF extra intentionally unavailable — previously this path returned the
     # pip-install hint even though the paper does not exist.
     mocker.patch(
-        "arxiv_mcp_server.tools.download._load_pdf_dependencies", return_value=False
+        "arxsource_mcp.tools.download._load_pdf_dependencies", return_value=False
     )
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -380,17 +372,15 @@ async def test_missing_version_reports_not_found_not_pdf_extra(
     """Nonexistent version must not be misreported as a missing [pdf] extra (#196)."""
     paper_id = "2307.09288v999"
     _patch_path(mocker, temp_storage_path)
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content", return_value=None)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=None
-    )
-    mocker.patch(
-        "arxiv_mcp_server.tools.download._paper_exists_on_arxiv",
+        "arxsource_mcp.tools.download._paper_exists_on_arxiv",
         return_value=False,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._load_pdf_dependencies", return_value=False
+        "arxsource_mcp.tools.download._load_pdf_dependencies", return_value=False
     )
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -408,15 +398,13 @@ async def test_existing_paper_without_html_still_hints_pdf_extra(
     """When the paper exists but HTML is gone, keep the [pdf] extra install hint."""
     paper_id = "2103.22222"
     _patch_path(mocker, temp_storage_path)
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content", return_value=None)
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content", return_value=None
-    )
-    mocker.patch(
-        "arxiv_mcp_server.tools.download._paper_exists_on_arxiv",
+        "arxsource_mcp.tools.download._paper_exists_on_arxiv",
         return_value=True,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._load_pdf_dependencies", return_value=False
+        "arxsource_mcp.tools.download._load_pdf_dependencies", return_value=False
     )
 
     response = await handle_download({"paper_id": paper_id})
@@ -424,7 +412,7 @@ async def test_existing_paper_without_html_still_hints_pdf_extra(
 
     assert result["status"] == "error"
     assert "pdf extra" in result["message"]
-    assert "pip install arxiv-mcp-server[pdf]" in result["message"]
+    assert "pip install arxsource-mcp[pdf]" in result["message"]
 
 
 @pytest.mark.asyncio
@@ -436,8 +424,8 @@ async def test_download_cache_first_chunk_emits_short_content_warning(
     _patch_path(mocker, temp_storage_path)
     content = "ExpertFlow " + ("z" * 4000)
     _stamp(temp_storage_path, paper_id, content)
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_html_content")
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download(
         {"paper_id": paper_id, "start": 0, "max_chars": 300}
@@ -462,8 +450,8 @@ async def test_download_later_chunk_has_no_warning_or_long_banner(
     _patch_path(mocker, temp_storage_path)
     content = "ExpertFlow " + ("w" * 5000)
     _stamp(temp_storage_path, paper_id, content)
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_html_content")
-    mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_html_content")
+    mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download(
         {"paper_id": paper_id, "start": 3000, "max_chars": 300}

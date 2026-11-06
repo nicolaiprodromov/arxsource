@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "arxiv-mcp-server"
-version = "0.8.2"
-description = "A flexible arXiv search and analysis service with MCP protocol support"
+name = "arxsource-mcp"
+version = "0.1.0"
+description = "Read the paper. Find the source. An MCP server that lets AI agents search, read and analyze arXiv papers, and find their code."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
-license-files = ["LICENSE"]
-keywords = ["mcp", "arxiv", "model-context-protocol", "llm", "research", "papers", "semantic-search", "ai", "academic"]
+license-files = ["LICENSE", "NOTICE"]
+keywords = ["mcp", "mcp-server", "arxiv", "model-context-protocol", "llm", "ai-agents", "research", "papers", "latex", "citations", "github", "huggingface", "semantic-search", "academic"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 authors = [
-    { name = "Joseph Blazick", email = "joe.blazick@yahoo.com" }
+    { name = "nicolaiprodromov", email = "57862822+nicolaiprodromov@users.noreply.github.com" }
 ]
 dependencies = [
     "arxiv>=2.1.0",
@@ -46,9 +46,11 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/blazickjp/arxiv-mcp-server"
-Issues = "https://github.com/blazickjp/arxiv-mcp-server/issues"
-Documentation = "https://github.com/blazickjp/arxiv-mcp-server#readme"
+Homepage = "https://github.com/nicolaiprodromov/arxsource"
+Repository = "https://github.com/nicolaiprodromov/arxsource"
+Issues = "https://github.com/nicolaiprodromov/arxsource/issues"
+Documentation = "https://github.com/nicolaiprodromov/arxsource#readme"
+Changelog = "https://github.com/nicolaiprodromov/arxsource/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 pdf = [
@@ -74,13 +76,13 @@ pro = [
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
-addopts = "-v --cov=arxiv_mcp_server"
+addopts = "-v --cov=arxsource_mcp"
 
 [project.scripts]
-arxiv-mcp-server = "arxiv_mcp_server:main"
+arxsource-mcp = "arxsource_mcp:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/arxiv_mcp_server"]
+packages = ["src/arxsource_mcp"]
 
 [tool.hatch.metadata]
 allow-direct-references = true

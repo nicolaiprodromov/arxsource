@@ -7,7 +7,7 @@ import threading
 import time
 from unittest.mock import patch, Mock
 
-from arxiv_mcp_server.tools.download import _fetch_arxiv_metadata
+from arxsource_mcp.tools.download import _fetch_arxiv_metadata
 
 FEED_XML = b"""<?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
@@ -72,7 +72,7 @@ def test_stall(deadline_seconds):
             return response
         return original_get(url, **kwargs)
 
-    from arxiv_mcp_server.tools.download import ARXIV_RATE_LIMITER
+    from arxsource_mcp.tools.download import ARXIV_RATE_LIMITER
 
     with (
         patch("requests.get", patched_get),

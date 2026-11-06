@@ -2,8 +2,8 @@
 
 import json
 
-from arxiv_mcp_server.server import list_tools
-from arxiv_mcp_server.tools.search import search_tool
+from arxsource_mcp.server import list_tools
+from arxsource_mcp.tools.search import search_tool
 
 # Baseline measured on main @94a1317 (search_papers Tool.description only).
 _SEARCH_PAPERS_DESC_BASELINE_CHARS = 3241

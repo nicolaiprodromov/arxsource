@@ -1,4 +1,4 @@
-"""Read functionality for the arXiv MCP server."""
+"""Read functionality for ArxSource."""
 
 import json
 from pathlib import Path

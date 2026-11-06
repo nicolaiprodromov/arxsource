@@ -24,22 +24,20 @@ def test_find_single_mcpb_requires_exactly_one_candidate(tmp_path):
     with pytest.raises(RuntimeError, match="exactly one MCPB"):
         find_single_mcpb(tmp_path)
 
-    artifact = tmp_path / "arxiv-mcp-server-0.6.2.mcpb"
+    artifact = tmp_path / "arxsource-mcp-0.6.2.mcpb"
     artifact.touch()
     assert find_single_mcpb(tmp_path) == artifact
 
-    (tmp_path / "arxiv-mcp-server-0.6.3.mcpb").touch()
+    (tmp_path / "arxsource-mcp-0.6.3.mcpb").touch()
     with pytest.raises(RuntimeError, match="exactly one MCPB"):
         find_single_mcpb(tmp_path)
 
 
 def test_extract_mcpb_extracts_archive_contents(tmp_path):
-    artifact = tmp_path / "arxiv-mcp-server-0.6.2.mcpb"
+    artifact = tmp_path / "arxsource-mcp-0.6.2.mcpb"
     with zipfile.ZipFile(artifact, "w") as archive:
         archive.writestr("manifest.json", "{}")
-        archive.writestr(
-            "server/arxiv_mcp_server/_bundle_version.py", 'VERSION = "0.6.2"'
-        )
+        archive.writestr("server/arxsource_mcp/_bundle_version.py", 'VERSION = "0.6.2"')
 
     destination = tmp_path / "unpacked"
     extract_mcpb(artifact, destination)
@@ -47,14 +45,12 @@ def test_extract_mcpb_extracts_archive_contents(tmp_path):
     assert (destination / "manifest.json").read_text() == "{}"
     assert (
         "0.6.2"
-        in (
-            destination / "server" / "arxiv_mcp_server" / "_bundle_version.py"
-        ).read_text()
+        in (destination / "server" / "arxsource_mcp" / "_bundle_version.py").read_text()
     )
 
 
 def test_extract_mcpb_rejects_path_traversal(tmp_path):
-    artifact = tmp_path / "arxiv-mcp-server-0.6.2.mcpb"
+    artifact = tmp_path / "arxsource-mcp-0.6.2.mcpb"
     with zipfile.ZipFile(artifact, "w") as archive:
         archive.writestr("../outside.txt", "unexpected")
 

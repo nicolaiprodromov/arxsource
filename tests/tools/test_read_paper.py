@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools import read_paper as read_module
-from arxiv_mcp_server.tools.read_paper import handle_read_paper
+from arxsource_mcp.tools import read_paper as read_module
+from arxsource_mcp.tools.read_paper import handle_read_paper
 
 
 @pytest.mark.asyncio
@@ -66,7 +66,7 @@ async def test_read_paper_reports_end_of_content_for_final_chunk(
 @pytest.mark.asyncio
 async def test_read_paper_defaults_to_bounded_content(temp_storage_path, monkeypatch):
     """Omitting max_chars must not return an unbounded long paper (#127)."""
-    from arxiv_mcp_server.tools.content import DEFAULT_MAX_CHARS
+    from arxsource_mcp.tools.content import DEFAULT_MAX_CHARS
 
     monkeypatch.setattr(
         read_module.settings,
@@ -120,7 +120,7 @@ async def test_read_paper_short_paper_unchanged_under_default(
 
 @pytest.mark.asyncio
 async def test_read_paper_return_full_text_opt_in(temp_storage_path, monkeypatch):
-    from arxiv_mcp_server.tools.content import DEFAULT_MAX_CHARS
+    from arxsource_mcp.tools.content import DEFAULT_MAX_CHARS
 
     monkeypatch.setattr(
         read_module.settings,
@@ -231,7 +231,7 @@ async def test_read_paper_missing_version_names_cached_bare_sidecar(
     temp_storage_path, monkeypatch
 ):
     """When bare+v2 is cached, read_paper(v1) names what is local (#243)."""
-    from arxiv_mcp_server.tools.list_papers import save_paper_metadata
+    from arxsource_mcp.tools.list_papers import save_paper_metadata
 
     monkeypatch.setattr(
         read_module.settings,

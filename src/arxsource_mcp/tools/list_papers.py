@@ -1,4 +1,4 @@
-"""List functionality for the arXiv MCP server."""
+"""List functionality for ArxSource."""
 
 import json
 import logging
@@ -20,7 +20,7 @@ from .arxiv_ids import (
 )
 
 settings = Settings()
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 
 METADATA_SUFFIX = ".meta.json"
 

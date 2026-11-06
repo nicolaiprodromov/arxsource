@@ -1,4 +1,4 @@
-"""Shared test fixtures for the arXiv MCP server test suite."""
+"""Shared test fixtures for ArxSource test suite."""
 
 import pytest
 import tempfile

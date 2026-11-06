@@ -4,7 +4,7 @@ import asyncio
 import pytest
 import httpx
 from unittest.mock import AsyncMock, Mock, patch
-from arxiv_mcp_server.arxiv_api import (
+from arxsource_mcp.arxiv_api import (
     retry_with_backoff,
     ArxivTimeoutError,
     ArxivConnectionError,
@@ -193,7 +193,7 @@ class TestRetryWithBackoff:
             max_backoff=0.1,
         )
         assert result == response_200
-        # 406 uses minimal retry (ARXIV_HTTP_406_MAX_RETRIES = 1), so 2 total attempts
+        # 406 uses minimal retry (ARXSOURCE_HTTP_406_MAX_RETRIES = 1), so 2 total attempts
         assert mock_op.call_count == 2
 
     async def test_raises_arxiv_rate_limit_error_after_max_retries_429(self):
@@ -229,7 +229,7 @@ class TestRetryWithBackoff:
         with pytest.raises(ArxivRateLimitError) as exc_info:
             await retry_with_backoff(
                 mock_op,
-                max_retries=3,  # But 406 uses ARXIV_HTTP_406_MAX_RETRIES = 1
+                max_retries=3,  # But 406 uses ARXSOURCE_HTTP_406_MAX_RETRIES = 1
                 initial_backoff=0.01,
                 max_backoff=0.1,
             )
@@ -281,7 +281,7 @@ class TestRetryWithBackoff:
 
     async def test_respects_max_total_time(self):
         """Operation stops retrying when max_total_time is exceeded."""
-        from arxiv_mcp_server.arxiv_api import ArxivTimeoutError
+        from arxsource_mcp.arxiv_api import ArxivTimeoutError
 
         mock_op = AsyncMock(side_effect=httpx.TimeoutException("timeout"))
         start = asyncio.get_event_loop().time()

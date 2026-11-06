@@ -19,7 +19,7 @@ from ..config import Settings
 import httpx
 import xml.etree.ElementTree as ET
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 abstract_tool = types.Tool(
@@ -75,7 +75,7 @@ async def handle_get_abstract(arguments: Dict[str, Any]) -> List[types.TextConte
         url = f"{ARXIV_API_URL}?id_list={paper_id}&max_results=1"
 
         timeout = httpx.Timeout(
-            connect=float(settings.ARXIV_CONNECT_TIMEOUT),
+            connect=float(settings.ARXSOURCE_CONNECT_TIMEOUT),
             read=float(settings.get_request_timeout()),
             write=30.0,
             pool=30.0,

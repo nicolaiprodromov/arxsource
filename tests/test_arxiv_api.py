@@ -5,7 +5,7 @@ import time
 
 import pytest
 
-from arxiv_mcp_server.arxiv_api import ArxivRateLimiter
+from arxsource_mcp.arxiv_api import ArxivRateLimiter
 
 
 @pytest.mark.asyncio
@@ -80,7 +80,7 @@ async def test_sync_and_async_requests_share_the_same_gate():
 
 def test_run_sync_timeout_raises_gate_timeout_without_calling_operation():
     """Gate acquisition timeout raises GateTimeout without calling operation."""
-    from arxiv_mcp_server.arxiv_api import GateTimeout
+    from arxsource_mcp.arxiv_api import GateTimeout
 
     limiter = ArxivRateLimiter(min_interval=0.0)
     operation_called = False

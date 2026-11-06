@@ -1,4 +1,4 @@
-"""Search functionality for the arXiv MCP server."""
+"""Search functionality for ArxSource."""
 
 import json
 import logging
@@ -19,7 +19,7 @@ from ..arxiv_api import (
 )
 from .content import CONTENT_WARNING
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 # Tool defaults (#128): compact pages by default.
@@ -33,7 +33,7 @@ _ABSTRACT_TRUNCATION_MARK = "… [truncated]"
 ARXIV_HEADERS = {
     "User-Agent": (
         f"{settings.APP_NAME}/{settings.APP_VERSION} "
-        "(https://github.com/blazickjp/arxiv-mcp-server; research tool)"
+        "(https://github.com/nicolaiprodromov/arxsource; research tool)"
     )
 }
 
@@ -102,10 +102,10 @@ async def _rate_limited_get(client: httpx.AsyncClient, url: str) -> httpx.Respon
     # Retry logic outside rate limiter so lock is released during sleeps
     return await retry_with_backoff(
         single_request,
-        max_retries=settings.ARXIV_MAX_RETRIES,
-        initial_backoff=settings.ARXIV_INITIAL_BACKOFF,
-        max_backoff=settings.ARXIV_MAX_BACKOFF,
-        max_total_time=float(settings.ARXIV_MAX_TOTAL_TIME),
+        max_retries=settings.ARXSOURCE_MAX_RETRIES,
+        initial_backoff=settings.ARXSOURCE_INITIAL_BACKOFF,
+        max_backoff=settings.ARXSOURCE_MAX_BACKOFF,
+        max_total_time=float(settings.ARXSOURCE_MAX_TOTAL_TIME),
         operation_name="arXiv API request",
     )
 
@@ -300,7 +300,7 @@ async def _raw_arxiv_search(
 
     # Make the request via rate-limited helper with generous timeout for slow searches
     timeout = httpx.Timeout(
-        connect=float(settings.ARXIV_CONNECT_TIMEOUT),
+        connect=float(settings.ARXSOURCE_CONNECT_TIMEOUT),
         read=float(settings.get_request_timeout()),
         write=30.0,
         pool=30.0,

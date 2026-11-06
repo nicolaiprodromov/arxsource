@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_mcp_server.tools import alerts as alerts_module
+from arxsource_mcp.tools import alerts as alerts_module
 
 
 @pytest.fixture
@@ -836,7 +836,7 @@ async def test_check_alerts_new_watch_still_surfaces_future_papers(
 @pytest.mark.asyncio
 async def test_check_alerts_429_returns_rate_limited_json(monkeypatch, alerts_test_env):
     """Regression #255: arXiv 429 must return JSON status=rate_limited, not Error: text."""
-    from arxiv_mcp_server.tools.search import ArxivRateLimitError
+    from arxsource_mcp.tools.search import ArxivRateLimitError
 
     async def _raise_rate_limit(**kwargs):
         raise ArxivRateLimitError(

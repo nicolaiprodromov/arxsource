@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from arxiv_mcp_server.tools.get_abstract import handle_get_abstract
-from arxiv_mcp_server.tools import export_citations as ec
+from arxsource_mcp.tools.get_abstract import handle_get_abstract
+from arxsource_mcp.tools import export_citations as ec
 
 FULL_ATOM_XML = """\
 <?xml version="1.0" encoding="UTF-8"?>
@@ -75,7 +75,7 @@ def _stub_metadata(monkeypatch, papers, recorder=None):
             if existing is None:
                 latest_by_bare[p["id"]] = p
             else:
-                from arxiv_mcp_server.tools.arxiv_ids import arxiv_version_number
+                from arxsource_mcp.tools.arxiv_ids import arxiv_version_number
 
                 if arxiv_version_number(versioned) > arxiv_version_number(
                     existing.get("versioned_id") or ""
@@ -98,7 +98,7 @@ async def test_arxiv_prefix_id_normalizes_and_succeeds(mocker):
     """arxiv:1706.03762v7 is stripped to 1706.03762v7 before the API call."""
     mock_get = _mock_rate_limited_get(FULL_ATOM_XML)
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         mock_get,
     )
     result = await handle_get_abstract({"paper_id": "arxiv:1706.03762v7"})
@@ -116,7 +116,7 @@ async def test_abs_url_normalizes_and_succeeds(mocker):
     """https://arxiv.org/abs/1706.03762 is extracted before the API call."""
     mock_get = _mock_rate_limited_get(FULL_ATOM_XML)
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         mock_get,
     )
     result = await handle_get_abstract({"paper_id": "https://arxiv.org/abs/1706.03762"})
@@ -133,7 +133,7 @@ async def test_abs_url_normalizes_and_succeeds(mocker):
 async def test_pdf_url_normalizes_and_succeeds(mocker):
     mock_get = _mock_rate_limited_get(FULL_ATOM_XML)
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         mock_get,
     )
     result = await handle_get_abstract(
@@ -155,7 +155,7 @@ async def test_invalid_paper_id_does_not_call_http(mocker, paper_id):
     """Garbage IDs return a clean format error and never hit the arXiv API."""
     mock_get = AsyncMock()
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         mock_get,
     )
     result = await handle_get_abstract({"paper_id": paper_id})
@@ -172,7 +172,7 @@ async def test_invalid_paper_id_does_not_call_http(mocker, paper_id):
 async def test_empty_paper_id_does_not_call_http(mocker, paper_id):
     mock_get = AsyncMock()
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         mock_get,
     )
     result = await handle_get_abstract({"paper_id": paper_id})
@@ -190,7 +190,7 @@ async def test_http_status_error_does_not_leak_upstream_url(mocker):
     request = httpx.Request("GET", "https://export.arxiv.org/api/query?id_list=x")
     response = httpx.Response(400, request=request)
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(
             side_effect=httpx.HTTPStatusError(
                 "400 Bad Request", request=request, response=response

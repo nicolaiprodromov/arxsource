@@ -6,11 +6,11 @@ from pathlib import Path
 import mcp.types as types
 import pytest
 
-from arxiv_mcp_server import server as server_module
-from arxiv_mcp_server.tools import read_paper as read_module
-from arxiv_mcp_server.tools.content import DEFAULT_MAX_CHARS
-from arxiv_mcp_server.tools.download import download_tool
-from arxiv_mcp_server.tools.read_paper import read_tool
+from arxsource_mcp import server as server_module
+from arxsource_mcp.tools import read_paper as read_module
+from arxsource_mcp.tools.content import DEFAULT_MAX_CHARS
+from arxsource_mcp.tools.download import download_tool
+from arxsource_mcp.tools.read_paper import read_tool
 
 
 @pytest.mark.asyncio

@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -197,8 +197,8 @@ wheels = [
 ]
 
 [[package]]
-name = "arxiv-mcp-server"
-version = "0.8.2"
+name = "arxsource-mcp"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },

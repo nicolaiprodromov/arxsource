@@ -1,6 +1,6 @@
 """HTML extract must drop footnotemark artifacts and permission boilerplate (#177)."""
 
-from arxiv_mcp_server.tools.download import EXTRACTOR_VERSION, _html_to_text
+from arxsource_mcp.tools.download import EXTRACTOR_VERSION, _html_to_text
 
 FOOTNOTEMARK_HTML = """
 <html>

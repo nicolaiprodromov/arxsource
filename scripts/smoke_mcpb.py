@@ -57,7 +57,7 @@ async def smoke_mcpb(bundle_dir: Path) -> dict[str, object]:
             f"got {sys.implementation.name} {sys.version.split()[0]}"
         )
 
-    with tempfile.TemporaryDirectory(prefix="arxiv-mcpb-smoke-") as temp:
+    with tempfile.TemporaryDirectory(prefix="arxsource-mcpb-smoke-") as temp:
         temp_dir = Path(temp)
         unpacked_dir = temp_dir / "unpacked"
         extract_mcpb(artifact, unpacked_dir)
@@ -71,7 +71,7 @@ async def smoke_mcpb(bundle_dir: Path) -> dict[str, object]:
 
         source_dir = unpacked_dir / "server"
         vendor_dir = source_dir / "vendor"
-        generated_version = source_dir / "arxiv_mcp_server" / "_bundle_version.py"
+        generated_version = source_dir / "arxsource_mcp" / "_bundle_version.py"
         for required in (source_dir, vendor_dir, generated_version):
             if not required.exists():
                 raise RuntimeError(
@@ -88,7 +88,7 @@ async def smoke_mcpb(bundle_dir: Path) -> dict[str, object]:
             command=sys.executable,
             args=[
                 "-m",
-                "arxiv_mcp_server",
+                "arxsource_mcp",
                 "--storage-path",
                 str(storage_dir),
             ],

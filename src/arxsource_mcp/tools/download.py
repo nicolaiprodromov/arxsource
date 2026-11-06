@@ -1,4 +1,4 @@
-"""Download functionality for the arXiv MCP server."""
+"""Download functionality for ArxSource."""
 
 import arxiv
 import gc
@@ -67,7 +67,7 @@ def _load_pdf_dependencies() -> bool:
     return True
 
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 
 # Serialise background indexing to avoid hammering the GPU/CPU when multiple
 # papers are downloaded in parallel (issue #68). Tasks are explicitly owned so
@@ -784,7 +784,7 @@ def _fetch_html_content(paper_id: str, deadline: float) -> str | None:
     def remaining_time() -> float:
         return max(0.0, deadline - time.monotonic())
 
-    for attempt in range(settings.ARXIV_MAX_RETRIES + 1):
+    for attempt in range(settings.ARXSOURCE_MAX_RETRIES + 1):
         # Check budget before attempt
         remaining = remaining_time()
         if remaining <= 0.1:
@@ -806,7 +806,7 @@ def _fetch_html_content(paper_id: str, deadline: float) -> str | None:
             min_attempt_time = 1.0  # Minimum time needed for the actual request
             if remaining_before_limiter < pending_wait + min_attempt_time:
                 logger.info(
-                    f"HTML fetch skipped: time budget (ARXIV_MAX_TOTAL_TIME) too small for another attempt "
+                    f"HTML fetch skipped: time budget (ARXSOURCE_MAX_TOTAL_TIME) too small for another attempt "
                     f"(need {pending_wait + min_attempt_time:.1f}s, have {remaining_before_limiter:.1f}s), will try PDF"
                 )
                 return None
@@ -818,12 +818,12 @@ def _fetch_html_content(paper_id: str, deadline: float) -> str | None:
             raise
         except httpx.TimeoutException as e:
             last_exception = e
-            if attempt < settings.ARXIV_MAX_RETRIES:
+            if attempt < settings.ARXSOURCE_MAX_RETRIES:
                 wait = min(
-                    settings.ARXIV_INITIAL_BACKOFF
+                    settings.ARXSOURCE_INITIAL_BACKOFF
                     * (2**attempt)
                     * (0.5 + random.random()),
-                    settings.ARXIV_MAX_BACKOFF,
+                    settings.ARXSOURCE_MAX_BACKOFF,
                 )
                 # Cap wait to remaining budget
                 remaining = remaining_time()
@@ -838,22 +838,22 @@ def _fetch_html_content(paper_id: str, deadline: float) -> str | None:
                     "HTML fetch timed out; retrying in %.1fs (attempt %d/%d)",
                     wait,
                     attempt + 1,
-                    settings.ARXIV_MAX_RETRIES + 1,
+                    settings.ARXSOURCE_MAX_RETRIES + 1,
                 )
                 time.sleep(wait)
             else:
                 logger.info(
-                    f"HTML fetch timed out after {settings.ARXIV_MAX_RETRIES + 1} attempts, will try PDF"
+                    f"HTML fetch timed out after {settings.ARXSOURCE_MAX_RETRIES + 1} attempts, will try PDF"
                 )
                 return None
         except (httpx.ConnectError, httpx.ConnectTimeout) as e:
             last_exception = e
-            if attempt < settings.ARXIV_MAX_RETRIES:
+            if attempt < settings.ARXSOURCE_MAX_RETRIES:
                 wait = min(
-                    settings.ARXIV_INITIAL_BACKOFF
+                    settings.ARXSOURCE_INITIAL_BACKOFF
                     * (2**attempt)
                     * (0.5 + random.random()),
-                    settings.ARXIV_MAX_BACKOFF,
+                    settings.ARXSOURCE_MAX_BACKOFF,
                 )
                 # Cap wait to remaining budget
                 remaining = remaining_time()
@@ -868,12 +868,12 @@ def _fetch_html_content(paper_id: str, deadline: float) -> str | None:
                     "HTML fetch connection error; retrying in %.1fs (attempt %d/%d)",
                     wait,
                     attempt + 1,
-                    settings.ARXIV_MAX_RETRIES + 1,
+                    settings.ARXSOURCE_MAX_RETRIES + 1,
                 )
                 time.sleep(wait)
             else:
                 logger.info(
-                    f"HTML connection failed after {settings.ARXIV_MAX_RETRIES + 1} attempts, will try PDF"
+                    f"HTML connection failed after {settings.ARXSOURCE_MAX_RETRIES + 1} attempts, will try PDF"
                 )
                 return None
         except httpx.RequestError as e:
@@ -896,7 +896,7 @@ def _fetch_html_content_single_attempt(
     """
     url = f"https://arxiv.org/html/{paper_id}"
     timeout = httpx.Timeout(
-        connect=float(settings.ARXIV_CONNECT_TIMEOUT),
+        connect=float(settings.ARXSOURCE_CONNECT_TIMEOUT),
         read=timeout_seconds,
         write=30.0,
         pool=30.0,
@@ -971,9 +971,9 @@ async def _paper_exists_on_arxiv(
         ) as client:
             response = await retry_with_backoff(
                 lambda: _rate_limited_get(client, url),
-                max_retries=settings.ARXIV_MAX_RETRIES,
-                initial_backoff=settings.ARXIV_INITIAL_BACKOFF,
-                max_backoff=settings.ARXIV_MAX_BACKOFF,
+                max_retries=settings.ARXSOURCE_MAX_RETRIES,
+                initial_backoff=settings.ARXSOURCE_INITIAL_BACKOFF,
+                max_backoff=settings.ARXSOURCE_MAX_BACKOFF,
                 max_total_time=remaining,
                 operation_name="existence check",
             )
@@ -1006,7 +1006,7 @@ def _download_arxiv_pdf_to_path(
         request_timeout=float(settings.get_request_timeout()),
         user_agent=(
             f"{settings.APP_NAME}/{settings.APP_VERSION} "
-            "(https://github.com/blazickjp/arxiv-mcp-server; research tool)"
+            "(https://github.com/nicolaiprodromov/arxsource; research tool)"
         ),
         deadline=deadline,
     )
@@ -1037,8 +1037,7 @@ def _fetch_pdf_content_unlocked(
     """
     if not _load_pdf_dependencies():
         raise ImportError(
-            "PDF conversion requires the pdf extra: "
-            "pip install arxiv-mcp-server[pdf]"
+            "PDF conversion requires the pdf extra: " "pip install arxsource-mcp[pdf]"
         )
 
     # Use a client with minimal retries for the metadata lookup to avoid
@@ -1052,7 +1051,7 @@ def _fetch_pdf_content_unlocked(
     min_attempt_time = 1.0  # Minimum time needed for metadata lookup
     if remaining < pending_wait + min_attempt_time:
         raise ArxivTimeoutError(
-            f"Paper metadata lookup skipped: time budget (ARXIV_MAX_TOTAL_TIME) too small for another attempt "
+            f"Paper metadata lookup skipped: time budget (ARXSOURCE_MAX_TOTAL_TIME) too small for another attempt "
             f"(need {pending_wait + min_attempt_time:.1f}s, have {remaining:.1f}s)"
         )
 
@@ -1197,9 +1196,7 @@ def _fetch_arxiv_metadata(
 
             # Direct GET to export API with streaming and clamped timeouts
             url = f"https://export.arxiv.org/api/query?id_list={paper_id}"
-            headers = {
-                "User-Agent": f"arxiv-mcp-server/{settings.APP_VERSION or '0.8.0'}"
-            }
+            headers = {"User-Agent": f"{settings.APP_NAME}/{settings.APP_VERSION}"}
             timeout_tuple = None
             if deadline is not None:
                 remaining = deadline - time.monotonic()
@@ -1208,12 +1205,12 @@ def _fetch_arxiv_metadata(
                     return None
                 # Clamp connect and read timeouts to remaining budget
                 timeout_tuple = (
-                    min(float(settings.ARXIV_CONNECT_TIMEOUT), remaining),
+                    min(float(settings.ARXSOURCE_CONNECT_TIMEOUT), remaining),
                     min(float(settings.get_request_timeout()), remaining),
                 )
             else:
                 timeout_tuple = (
-                    float(settings.ARXIV_CONNECT_TIMEOUT),
+                    float(settings.ARXSOURCE_CONNECT_TIMEOUT),
                     float(settings.get_request_timeout()),
                 )
 
@@ -1284,7 +1281,7 @@ def _fetch_arxiv_metadata(
 
                 # Injectable test flag: skip watchdog for testing
                 skip_watchdog = __import__("os").environ.get(
-                    "_ARXIV_MCP_TEST_SKIP_WATCHDOG"
+                    "_ARXSOURCE_TEST_SKIP_WATCHDOG"
                 )
                 if not skip_watchdog:
 
@@ -1318,10 +1315,10 @@ def _fetch_arxiv_metadata(
 
             # Use thread-based backstop when socket is unreachable, or on Windows when watchdog is active
             skip_thread_backstop = __import__("os").environ.get(
-                "_ARXIV_MCP_TEST_SKIP_THREAD_BACKSTOP"
+                "_ARXSOURCE_TEST_SKIP_THREAD_BACKSTOP"
             )
             skip_watchdog = __import__("os").environ.get(
-                "_ARXIV_MCP_TEST_SKIP_WATCHDOG"
+                "_ARXSOURCE_TEST_SKIP_WATCHDOG"
             )
             import platform
 
@@ -1339,7 +1336,7 @@ def _fetch_arxiv_metadata(
                 result_container = {"chunks": None, "error": None}
 
                 skip_perbyte_check = __import__("os").environ.get(
-                    "_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK"
+                    "_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK"
                 )
 
                 def stream_in_thread():
@@ -1404,10 +1401,10 @@ def _fetch_arxiv_metadata(
                     read_timeout = float(settings.get_request_timeout())
                     # Injectable test flags
                     skip_socket_timeout = __import__("os").environ.get(
-                        "_ARXIV_MCP_TEST_SKIP_SOCKET_TIMEOUT"
+                        "_ARXSOURCE_TEST_SKIP_SOCKET_TIMEOUT"
                     )
                     skip_perbyte_check = __import__("os").environ.get(
-                        "_ARXIV_MCP_TEST_SKIP_PERBYTE_CHECK"
+                        "_ARXSOURCE_TEST_SKIP_PERBYTE_CHECK"
                     )
 
                     # Arm socket timeout before first read
@@ -1625,11 +1622,11 @@ async def handle_download(arguments: Dict[str, Any]) -> List[types.TextContent]:
     """Handle paper download requests synchronously (HTML first, then PDF).
 
     Uses a single deadline for the entire operation (HTML + existence check + PDF)
-    to ensure the total time stays within ARXIV_MAX_TOTAL_TIME.
+    to ensure the total time stays within ARXSOURCE_MAX_TOTAL_TIME.
     """
     # Create single deadline for entire operation
     start_time = time.monotonic()
-    max_total_time = float(settings.ARXIV_MAX_TOTAL_TIME)
+    max_total_time = float(settings.ARXSOURCE_MAX_TOTAL_TIME)
     deadline = start_time + max_total_time
 
     try:
@@ -1780,7 +1777,7 @@ async def handle_download(arguments: Dict[str, Any]) -> List[types.TextContent]:
                             "message": (
                                 "HTML version not available and PDF conversion "
                                 "requires the pdf extra: "
-                                "pip install arxiv-mcp-server[pdf]"
+                                "pip install arxsource-mcp[pdf]"
                             ),
                         }
                     ),

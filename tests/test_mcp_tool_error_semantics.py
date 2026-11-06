@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 import pytest
 import mcp.types as types
 
-from arxiv_mcp_server import server as server_module
+from arxsource_mcp import server as server_module
 
 NO_ENTRIES_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
@@ -23,7 +23,7 @@ class MockResponse:
 async def test_get_abstract_not_found_sets_mcp_is_error(mocker):
     """JSON error payloads from get_abstract should be MCP tool errors."""
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(return_value=MockResponse(NO_ENTRIES_XML)),
     )
 

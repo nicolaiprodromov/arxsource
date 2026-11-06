@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 from types import ModuleType
-from arxiv_mcp_server.config import Settings
+from arxsource_mcp.config import Settings
 from unittest.mock import MagicMock, patch
 
 
@@ -13,10 +13,10 @@ from unittest.mock import MagicMock, patch
 def test_storage_path_default(mock_resolve, mock_mkdir):
     """Test that the default storage path is correctly constructed."""
     # Setup the mock to return the path itself when resolved
-    mock_resolve.side_effect = lambda: Path.home() / ".arxiv-mcp-server" / "papers"
+    mock_resolve.side_effect = lambda: Path.home() / ".arxsource" / "papers"
 
     settings = Settings()
-    expected_path = Path.home() / ".arxiv-mcp-server" / "papers"
+    expected_path = Path.home() / ".arxsource" / "papers"
     assert settings.STORAGE_PATH == expected_path.resolve()
     # Verify mkdir was called with parents=True and exist_ok=True
     mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
@@ -133,7 +133,7 @@ def test_path_normalization_with_windows_paths():
 
 
 def test_close_arxiv_client_releases_shared_session(monkeypatch):
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
     client = MagicMock()
     monkeypatch.setattr(config, "_arxiv_client", client)
@@ -145,9 +145,9 @@ def test_close_arxiv_client_releases_shared_session(monkeypatch):
 
 
 def test_package_version_prefers_generated_bundle_version(monkeypatch):
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
-    bundle_module = ModuleType("arxiv_mcp_server._bundle_version")
+    bundle_module = ModuleType("arxsource_mcp._bundle_version")
     setattr(bundle_module, "VERSION", "9.9.9")
     monkeypatch.setitem(sys.modules, bundle_module.__name__, bundle_module)
     monkeypatch.setattr(config, "version", lambda _name: "0.6.2")
@@ -156,7 +156,7 @@ def test_package_version_prefers_generated_bundle_version(monkeypatch):
 
 
 def test_package_version_uses_distribution_metadata_without_bundle(monkeypatch):
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
     def missing_bundle(_name, *, package):
         raise ImportError(package)
@@ -168,7 +168,7 @@ def test_package_version_uses_distribution_metadata_without_bundle(monkeypatch):
 
 
 def test_package_version_falls_back_without_bundle_or_distribution(monkeypatch):
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
     def missing_bundle(_name, *, package):
         raise ImportError(package)
@@ -194,7 +194,7 @@ def test_get_arxiv_client_injects_timeout_and_disables_keepalive(monkeypatch):
     import sys
     from unittest.mock import MagicMock, patch
     import requests
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
     real_session = requests.Session()
     fake_client = MagicMock()
@@ -219,7 +219,7 @@ def test_get_arxiv_client_injects_timeout_and_disables_keepalive(monkeypatch):
     assert kwargs["timeout"] == (
         10.0,
         30.0,
-    )  # (ARXIV_CONNECT_TIMEOUT, get_request_timeout())
+    )  # (ARXSOURCE_CONNECT_TIMEOUT, get_request_timeout())
 
     # keep-alive must be disabled so no stale pooled connection is reused
     assert real_session.headers.get("Connection") == "close"
@@ -229,7 +229,7 @@ def test_get_arxiv_client_skips_wrapping_without_real_session(monkeypatch):
     """Mocks without a requests.Session must not be touched."""
     import sys
     from unittest.mock import MagicMock
-    from arxiv_mcp_server import config
+    from arxsource_mcp import config
 
     fake_client = MagicMock()
     fake_client._session = MagicMock()  # not a requests.Session
@@ -247,11 +247,11 @@ def test_get_arxiv_client_skips_wrapping_without_real_session(monkeypatch):
 
 
 def test_request_timeout_fallback():
-    """ARXIV_REQUEST_TIMEOUT falls back to legacy REQUEST_TIMEOUT when not explicitly set."""
-    # Test 1: ARXIV_REQUEST_TIMEOUT explicitly set (takes precedence)
+    """ARXSOURCE_REQUEST_TIMEOUT falls back to legacy REQUEST_TIMEOUT when not explicitly set."""
+    # Test 1: ARXSOURCE_REQUEST_TIMEOUT explicitly set (takes precedence)
     with patch.dict(
         os.environ,
-        {"ARXIV_REQUEST_TIMEOUT": "15", "REQUEST_TIMEOUT": "45"},
+        {"ARXSOURCE_REQUEST_TIMEOUT": "15", "REQUEST_TIMEOUT": "45"},
         clear=False,
     ):
         settings = Settings()
@@ -259,18 +259,18 @@ def test_request_timeout_fallback():
 
     # Test 2: Only REQUEST_TIMEOUT set (fallback)
     with patch.dict(os.environ, {"REQUEST_TIMEOUT": "25"}, clear=False):
-        # Clear ARXIV_REQUEST_TIMEOUT from env if present
+        # Clear ARXSOURCE_REQUEST_TIMEOUT from env if present
         env = os.environ.copy()
-        if "ARXIV_REQUEST_TIMEOUT" in env:
-            del env["ARXIV_REQUEST_TIMEOUT"]
+        if "ARXSOURCE_REQUEST_TIMEOUT" in env:
+            del env["ARXSOURCE_REQUEST_TIMEOUT"]
         with patch.dict(os.environ, env, clear=True):
             settings = Settings()
             assert settings.get_request_timeout() == 25
 
-    # Test 3: Neither set (use ARXIV_REQUEST_TIMEOUT default of 30)
+    # Test 3: Neither set (use ARXSOURCE_REQUEST_TIMEOUT default of 30)
     env = os.environ.copy()
-    if "ARXIV_REQUEST_TIMEOUT" in env:
-        del env["ARXIV_REQUEST_TIMEOUT"]
+    if "ARXSOURCE_REQUEST_TIMEOUT" in env:
+        del env["ARXSOURCE_REQUEST_TIMEOUT"]
     if "REQUEST_TIMEOUT" in env:
         del env["REQUEST_TIMEOUT"]
     with patch.dict(os.environ, env, clear=True):
@@ -279,11 +279,11 @@ def test_request_timeout_fallback():
 
 
 def test_request_timeout_case_insensitive():
-    """REQUEST_TIMEOUT and ARXIV_REQUEST_TIMEOUT are case-insensitive like other settings."""
-    # Test lowercase arxiv_request_timeout takes precedence
+    """REQUEST_TIMEOUT and ARXSOURCE_REQUEST_TIMEOUT are case-insensitive like other settings."""
+    # Test lowercase arxsource_request_timeout takes precedence
     with patch.dict(
         os.environ,
-        {"arxiv_request_timeout": "12", "request_timeout": "33"},
+        {"arxsource_request_timeout": "12", "request_timeout": "33"},
         clear=False,
     ):
         settings = Settings()
@@ -292,7 +292,7 @@ def test_request_timeout_case_insensitive():
     # Test lowercase request_timeout fallback
     env = os.environ.copy()
     for key in list(env.keys()):
-        if key.upper() in ("ARXIV_REQUEST_TIMEOUT", "REQUEST_TIMEOUT"):
+        if key.upper() in ("ARXSOURCE_REQUEST_TIMEOUT", "REQUEST_TIMEOUT"):
             del env[key]
     env["request_timeout"] = "18"
     with patch.dict(os.environ, env, clear=True):
@@ -302,9 +302,9 @@ def test_request_timeout_case_insensitive():
     # Test mixed case
     env = os.environ.copy()
     for key in list(env.keys()):
-        if key.upper() in ("ARXIV_REQUEST_TIMEOUT", "REQUEST_TIMEOUT"):
+        if key.upper() in ("ARXSOURCE_REQUEST_TIMEOUT", "REQUEST_TIMEOUT"):
             del env[key]
-    env["ArXiV_ReQuEsT_tImEoUt"] = "7"
+    env["ArXsOuRcE_ReQuEsT_tImEoUt"] = "7"
     with patch.dict(os.environ, env, clear=True):
         settings = Settings()
         assert settings.get_request_timeout() == 7

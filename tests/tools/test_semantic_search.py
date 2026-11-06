@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from arxiv_mcp_server.tools import semantic_search as semantic_module
+from arxsource_mcp.tools import semantic_search as semantic_module
 
 EDITABLE_PRO_INSTALL = 'uv pip install -e ".[pro]"'
 
@@ -14,7 +14,7 @@ def _assert_pro_install_hint(message: str) -> None:
     """uvx users should see a PyPI extra path; checkout install is secondary."""
     assert message
     assert "uvx" in message
-    assert "arxiv-mcp-server[pro]" in message
+    assert "arxsource-mcp[pro]" in message
     assert message.index("uvx") < message.index(EDITABLE_PRO_INSTALL)
 
 

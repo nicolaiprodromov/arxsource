@@ -1,4 +1,4 @@
-"""Research journey prompt management for the arXiv MCP server."""
+"""Research journey prompt management for ArxSource."""
 
 from typing import Dict, Optional
 from mcp.types import Prompt

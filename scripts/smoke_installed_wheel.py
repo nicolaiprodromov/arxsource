@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build-artifact smoke test for an isolated arxiv-mcp-server wheel."""
+"""Build-artifact smoke test for an isolated arxsource-mcp wheel."""
 
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ from mcp.client.stdio import stdio_client
 ROOT = Path(__file__).resolve().parents[1]
 MCP_REQUEST_TIMEOUT_SECONDS = 30
 MCP_OVERALL_TIMEOUT_SECONDS = 120
+EXPECTED_SERVER_NAME = "arxsource"
 EXPECTED_TOOLS = {
     "check_alerts",
     "citation_graph",
@@ -77,8 +78,8 @@ def venv_python(venv_dir: Path, *, platform: str = os.name) -> Path:
 def venv_entrypoint(venv_dir: Path, *, platform: str = os.name) -> Path:
     """Return the installed console-script path for a POSIX or Windows virtualenv."""
     if platform == "nt":
-        return venv_dir / "Scripts" / "arxiv-mcp-server.exe"
-    return venv_dir / "bin" / "arxiv-mcp-server"
+        return venv_dir / "Scripts" / "arxsource-mcp.exe"
+    return venv_dir / "bin" / "arxsource-mcp"
 
 
 def clean_subprocess_env(
@@ -129,6 +130,12 @@ async def exercise_mcp_server(
                 read_timeout_seconds=timedelta(seconds=MCP_REQUEST_TIMEOUT_SECONDS),
             ) as session:
                 initialized = await session.initialize()
+                server_name = initialized.serverInfo.name
+                if server_name != EXPECTED_SERVER_NAME:
+                    raise RuntimeError(
+                        f"MCP server name {server_name!r} does not match "
+                        f"expected name {EXPECTED_SERVER_NAME!r}"
+                    )
                 server_version = initialized.serverInfo.version
                 if server_version != expected_version:
                     raise RuntimeError(
@@ -168,6 +175,7 @@ async def exercise_mcp_server(
                     raise RuntimeError("list_papers failed through the MCP session")
 
     return {
+        "server_name": server_name,
         "server_version": server_version,
         "tools": len(tool_names),
         "prompts": len(prompt_names),
@@ -178,7 +186,7 @@ async def exercise_mcp_server(
 
 async def smoke_wheel(wheel: Path) -> dict[str, object]:
     """Install *wheel* in a blank venv and exercise its real MCP interface."""
-    with tempfile.TemporaryDirectory(prefix="arxiv-wheel-smoke-") as temp:
+    with tempfile.TemporaryDirectory(prefix="arxsource-wheel-smoke-") as temp:
         temp_dir = Path(temp)
         venv_dir = temp_dir / "venv"
         home_dir = temp_dir / "home"
@@ -205,7 +213,7 @@ async def smoke_wheel(wheel: Path) -> dict[str, object]:
                 str(python),
                 "-c",
                 "import importlib.metadata; "
-                "print(importlib.metadata.version('arxiv-mcp-server'))",
+                "print(importlib.metadata.version('arxsource-mcp'))",
             ],
             text=True,
             env=env,

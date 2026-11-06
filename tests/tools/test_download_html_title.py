@@ -1,6 +1,6 @@
 """HTML extract: join decorative title letter spans / subtitle colon (#258)."""
 
-from arxiv_mcp_server.tools.download import EXTRACTOR_VERSION, _html_to_text
+from arxsource_mcp.tools.download import EXTRACTOR_VERSION, _html_to_text
 
 # DAOP (2501.10375): underlined acronym letters are one glyph per <span>.
 DAOP_LETTER_TITLE_HTML = """

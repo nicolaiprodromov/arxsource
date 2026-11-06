@@ -4,20 +4,20 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools import download as download_module
-from arxiv_mcp_server.tools import list_papers as list_papers_module
-from arxiv_mcp_server.tools import read_paper as read_module
-from arxiv_mcp_server.tools.arxiv_ids import (
+from arxsource_mcp.tools import download as download_module
+from arxsource_mcp.tools import list_papers as list_papers_module
+from arxsource_mcp.tools import read_paper as read_module
+from arxsource_mcp.tools.arxiv_ids import (
     filesystem_arxiv_stem,
     logical_arxiv_id_from_stem,
 )
-from arxiv_mcp_server.tools.download import (
+from arxsource_mcp.tools.download import (
     EXTRACTOR_VERSION,
     get_paper_path,
     handle_download,
 )
-from arxiv_mcp_server.tools.list_papers import handle_list_papers
-from arxiv_mcp_server.tools.read_paper import handle_read_paper
+from arxsource_mcp.tools.list_papers import handle_list_papers
+from arxsource_mcp.tools.read_paper import handle_read_paper
 
 LEGACY_IDS = ("hep-th/9901001", "quant-ph/0101001", "math-ph/0001001")
 

@@ -4,7 +4,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from arxiv_mcp_server.tools.get_abstract import (
+from arxsource_mcp.tools.get_abstract import (
     abstract_tool,
     handle_get_abstract,
 )
@@ -160,7 +160,7 @@ async def test_whitespace_only_paper_id_returns_error():
 @pytest.mark.asyncio
 async def test_successful_fetch_returns_success_status(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -171,7 +171,7 @@ async def test_successful_fetch_returns_success_status(mocker):
 @pytest.mark.asyncio
 async def test_successful_fetch_returns_paper_id(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -183,7 +183,7 @@ async def test_successful_fetch_returns_paper_id(mocker):
 async def test_successful_fetch_title_stripped(mocker):
     """Title whitespace and leading/trailing spaces are stripped."""
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -195,7 +195,7 @@ async def test_successful_fetch_title_stripped(mocker):
 async def test_successful_fetch_abstract_newlines_replaced(mocker):
     """Newlines inside the abstract text are replaced with spaces."""
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -208,7 +208,7 @@ async def test_successful_fetch_abstract_newlines_replaced(mocker):
 async def test_successful_fetch_emits_short_content_warning_once(mocker):
     """Warning is a separate field; abstract body has no EXTERNAL CONTENT prefix (#230)."""
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -222,7 +222,7 @@ async def test_successful_fetch_emits_short_content_warning_once(mocker):
 @pytest.mark.asyncio
 async def test_successful_fetch_authors_list(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -233,7 +233,7 @@ async def test_successful_fetch_authors_list(mocker):
 @pytest.mark.asyncio
 async def test_successful_fetch_categories(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -246,7 +246,7 @@ async def test_successful_fetch_categories(mocker):
 @pytest.mark.asyncio
 async def test_successful_fetch_published_date(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -257,7 +257,7 @@ async def test_successful_fetch_published_date(mocker):
 @pytest.mark.asyncio
 async def test_successful_fetch_pdf_url_from_link(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -268,7 +268,7 @@ async def test_successful_fetch_pdf_url_from_link(mocker):
 @pytest.mark.asyncio
 async def test_result_is_list_of_one_text_content(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -285,7 +285,7 @@ async def test_result_is_list_of_one_text_content(mocker):
 async def test_pdf_url_fallback_when_no_link_element(mocker):
     """When no pdf link is present, pdf_url falls back to arxiv.org/pdf/{id}."""
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(NO_PDF_LINK_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.99999"})
@@ -302,7 +302,7 @@ async def test_pdf_url_fallback_when_no_link_element(mocker):
 @pytest.mark.asyncio
 async def test_single_author_returns_list(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(SINGLE_AUTHOR_XML),
     )
     result = await handle_get_abstract({"paper_id": "2310.00001"})
@@ -320,7 +320,7 @@ async def test_single_author_returns_list(mocker):
 async def test_category_deduplication(mocker):
     """Duplicate category terms should appear only once."""
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(CATEGORY_DEDUP_XML),
     )
     result = await handle_get_abstract({"paper_id": "2312.55555"})
@@ -338,7 +338,7 @@ async def test_category_deduplication(mocker):
 @pytest.mark.asyncio
 async def test_paper_not_found_returns_error(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(NO_ENTRIES_XML),
     )
     result = await handle_get_abstract({"paper_id": "9999.00000"})
@@ -356,7 +356,7 @@ async def test_paper_not_found_returns_error(mocker):
 @pytest.mark.asyncio
 async def test_rate_limit_error_returns_error_status(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=RuntimeError("Rate limit exceeded")),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -368,10 +368,10 @@ async def test_rate_limit_error_returns_error_status(mocker):
 @pytest.mark.asyncio
 async def test_arxiv_rate_limit_error_returns_rate_limited_response(mocker):
     """ArxivRateLimitError should return status=rate_limited with retry info (#277)."""
-    from arxiv_mcp_server.tools.search import ArxivRateLimitError
+    from arxsource_mcp.tools.search import ArxivRateLimitError
 
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(
             side_effect=ArxivRateLimitError(
                 "arXiv is rate limiting this IP (HTTP 406). "
@@ -392,7 +392,7 @@ async def test_arxiv_rate_limit_error_returns_rate_limited_response(mocker):
 @pytest.mark.asyncio
 async def test_timeout_runtime_error_handled(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=RuntimeError("Request timed out after 3 retries")),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -418,7 +418,7 @@ async def test_http_406_error_is_not_reported_as_not_found(mocker):
     )
 
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=error),
     )
     result = await handle_get_abstract({"paper_id": "2607.06596"})
@@ -441,7 +441,7 @@ async def test_http_500_error_is_not_reported_as_not_found(mocker):
     )
 
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=error),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -461,7 +461,7 @@ async def test_http_403_error_is_not_reported_as_not_found(mocker):
     error = httpx.HTTPStatusError("403 Forbidden", request=request, response=response)
 
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=error),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -485,7 +485,7 @@ async def test_http_error_does_not_leak_url(mocker):
     )
 
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=error),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -503,7 +503,7 @@ async def test_http_error_does_not_leak_url(mocker):
 @pytest.mark.asyncio
 async def test_unexpected_exception_returns_error_status(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=ValueError("unexpected boom")),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -517,7 +517,7 @@ async def test_network_error_returns_error_status(mocker):
     import httpx
 
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=httpx.NetworkError("connection refused")),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -535,7 +535,7 @@ async def test_malformed_xml_returns_error(mocker):
     """ET.fromstring will raise ParseError for bad XML → caught by generic handler."""
     bad_xml = "<<< not valid xml >>>"
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(bad_xml),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -553,7 +553,7 @@ async def test_paper_id_is_stripped_before_url_construction(mocker):
     """paper_id with surrounding whitespace should still work (stripped internally)."""
     mock_get = _mock_rate_limited_get(FULL_ATOM_XML)
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         mock_get,
     )
     result = await handle_get_abstract({"paper_id": "  2401.12345  "})
@@ -571,7 +571,7 @@ async def test_paper_id_is_stripped_before_url_construction(mocker):
 @pytest.mark.asyncio
 async def test_success_response_has_all_required_keys(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         _mock_rate_limited_get(FULL_ATOM_XML),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})
@@ -592,7 +592,7 @@ async def test_success_response_has_all_required_keys(mocker):
 @pytest.mark.asyncio
 async def test_error_response_has_status_and_message_keys(mocker):
     mocker.patch(
-        "arxiv_mcp_server.tools.get_abstract._rate_limited_get",
+        "arxsource_mcp.tools.get_abstract._rate_limited_get",
         AsyncMock(side_effect=RuntimeError("boom")),
     )
     result = await handle_get_abstract({"paper_id": "2401.12345"})

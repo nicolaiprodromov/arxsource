@@ -33,7 +33,7 @@ from .search import (
     _rate_limited_response,
 )
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 # Bound the response so a single call cannot fan out without limit.

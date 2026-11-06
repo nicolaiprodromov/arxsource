@@ -2,7 +2,7 @@
 
 import pytest
 from typing import Dict
-from arxiv_mcp_server.prompts.handlers import list_prompts, get_prompt
+from arxsource_mcp.prompts.handlers import list_prompts, get_prompt
 from mcp.types import GetPromptResult, PromptMessage, TextContent
 
 
@@ -43,7 +43,7 @@ async def test_get_paper_analysis_prompt():
 @pytest.mark.asyncio
 async def test_prompt_calls_do_not_share_paper_context():
     """Prompt generation is stateless across clients and calls."""
-    from arxiv_mcp_server.prompts import handlers
+    from arxsource_mcp.prompts import handlers
 
     await handlers.get_prompt(
         "deep-paper-analysis", {"paper_id": "2401.00001"}, session_id="client-a"

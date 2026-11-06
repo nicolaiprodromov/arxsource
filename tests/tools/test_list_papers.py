@@ -3,8 +3,8 @@
 import json
 import pytest
 
-from arxiv_mcp_server.tools import list_papers as list_papers_module
-from arxiv_mcp_server.tools.list_papers import handle_list_papers, save_paper_metadata
+from arxsource_mcp.tools import list_papers as list_papers_module
+from arxsource_mcp.tools.list_papers import handle_list_papers, save_paper_metadata
 
 
 @pytest.fixture

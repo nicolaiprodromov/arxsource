@@ -1,6 +1,6 @@
 """HTML extract must drop ICML/LaTeX page-layout style warnings (#190)."""
 
-from arxiv_mcp_server.tools.download import EXTRACTOR_VERSION, _html_to_text
+from arxsource_mcp.tools.download import EXTRACTOR_VERSION, _html_to_text
 
 ICML_STYLE_WARNING_HTML = """
 <html>

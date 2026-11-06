@@ -57,7 +57,7 @@ from .latex_flatten import (
 )
 from .arxiv_ids import parse_arxiv_id
 
-logger = logging.getLogger("arxiv-mcp-server")
+logger = logging.getLogger("arxsource")
 settings = Settings()
 
 DEFAULT_MAX_SECTIONS = 100

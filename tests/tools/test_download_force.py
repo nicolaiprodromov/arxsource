@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools.download import (
+from arxsource_mcp.tools.download import (
     EXTRACTOR_VERSION,
     download_tool,
     handle_download,
@@ -48,25 +48,25 @@ async def test_force_true_rewrites_cached_paper(temp_storage_path, mocker):
     """force=true re-fetches and overwrites markdown plus sidecar."""
     paper_id = "1706.03762"
     mocker.patch(
-        "arxiv_mcp_server.tools.download.get_paper_path",
+        "arxsource_mcp.tools.download.get_paper_path",
         side_effect=_fake_path(temp_storage_path),
     )
     _write_cached_paper(temp_storage_path, paper_id, "OLD DIRTY CACHE")
 
     new_text = "Attention Is All You Need\nFresh extract."
     mock_html = mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value=new_text,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value={
             "title": "Attention Is All You Need",
             "authors": ["Ashish Vaswani"],
             "published": "2017-06-12T00:00:00+00:00",
         },
     )
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id, "force": True})
     result = json.loads(response[0].text)
@@ -90,7 +90,7 @@ async def test_matching_extractor_version_is_cache_hit(temp_storage_path, mocker
     """A sidecar stamped with the current extractor version skips the network."""
     paper_id = "2103.12345"
     mocker.patch(
-        "arxiv_mcp_server.tools.download.get_paper_path",
+        "arxsource_mcp.tools.download.get_paper_path",
         side_effect=_fake_path(temp_storage_path),
     )
     _write_cached_paper(
@@ -99,8 +99,8 @@ async def test_matching_extractor_version_is_cache_hit(temp_storage_path, mocker
         "Fresh enough",
         extractor_version=EXTRACTOR_VERSION,
     )
-    mock_html = mocker.patch("arxiv_mcp_server.tools.download._fetch_html_content")
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_html = mocker.patch("arxsource_mcp.tools.download._fetch_html_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -117,7 +117,7 @@ async def test_old_extractor_version_refreshes_cache(temp_storage_path, mocker):
     """An older extractor stamp is treated as stale and re-downloaded."""
     paper_id = "2608.18261"
     mocker.patch(
-        "arxiv_mcp_server.tools.download.get_paper_path",
+        "arxsource_mcp.tools.download.get_paper_path",
         side_effect=_fake_path(temp_storage_path),
     )
     _write_cached_paper(
@@ -128,18 +128,18 @@ async def test_old_extractor_version_refreshes_cache(temp_storage_path, mocker):
     )
     new_text = "Cacheable by Design?\nClean extract."
     mock_html = mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value=new_text,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value={
             "title": "Cacheable by Design?",
             "authors": ["Shriniwas Ramesh Suram"],
             "published": "2026-08-20T00:00:00+00:00",
         },
     )
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)
@@ -162,7 +162,7 @@ async def test_missing_extractor_version_refreshes_cache(temp_storage_path, mock
     """A cache written before version stamps is treated as stale."""
     paper_id = "2103.77777"
     mocker.patch(
-        "arxiv_mcp_server.tools.download.get_paper_path",
+        "arxsource_mcp.tools.download.get_paper_path",
         side_effect=_fake_path(temp_storage_path),
     )
     (temp_storage_path / f"{paper_id}.md").write_text(
@@ -170,14 +170,14 @@ async def test_missing_extractor_version_refreshes_cache(temp_storage_path, mock
     )
     new_text = "Rewritten after missing version."
     mock_html = mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_html_content",
+        "arxsource_mcp.tools.download._fetch_html_content",
         return_value=new_text,
     )
     mocker.patch(
-        "arxiv_mcp_server.tools.download._fetch_arxiv_metadata",
+        "arxsource_mcp.tools.download._fetch_arxiv_metadata",
         return_value=None,
     )
-    mock_pdf = mocker.patch("arxiv_mcp_server.tools.download._fetch_pdf_content")
+    mock_pdf = mocker.patch("arxsource_mcp.tools.download._fetch_pdf_content")
 
     response = await handle_download({"paper_id": paper_id})
     result = json.loads(response[0].text)

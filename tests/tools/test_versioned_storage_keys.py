@@ -4,12 +4,12 @@ import json
 
 import pytest
 
-from arxiv_mcp_server.tools import download as download_module
-from arxiv_mcp_server.tools import list_papers as list_papers_module
-from arxiv_mcp_server.tools import read_paper as read_module
-from arxiv_mcp_server.tools.download import EXTRACTOR_VERSION, handle_download
-from arxiv_mcp_server.tools.list_papers import handle_list_papers, save_paper_metadata
-from arxiv_mcp_server.tools.read_paper import handle_read_paper
+from arxsource_mcp.tools import download as download_module
+from arxsource_mcp.tools import list_papers as list_papers_module
+from arxsource_mcp.tools import read_paper as read_module
+from arxsource_mcp.tools.download import EXTRACTOR_VERSION, handle_download
+from arxsource_mcp.tools.list_papers import handle_list_papers, save_paper_metadata
+from arxsource_mcp.tools.read_paper import handle_read_paper
 
 
 def _patch_download_path(mocker, storage):

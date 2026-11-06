@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
-from arxiv_mcp_server.arxiv_api import (
+from arxsource_mcp.arxiv_api import (
     retry_with_backoff,
     ArxivRateLimitError,
     ArxivTimeoutError,
@@ -87,7 +87,7 @@ class TestBlockerFixes:
     @pytest.mark.asyncio
     async def test_html_timeout_fallback_to_pdf(self):
         """Blocker 7: HTML timeout returns None to allow PDF fallback."""
-        from arxiv_mcp_server.tools.download import _fetch_html_content_single_attempt
+        from arxsource_mcp.tools.download import _fetch_html_content_single_attempt
 
         with patch.object(httpx, "get") as mock_get:
             mock_get.side_effect = httpx.TimeoutException("timeout")
@@ -99,7 +99,7 @@ class TestBlockerFixes:
     @pytest.mark.asyncio
     async def test_pdf_timeout_honest_error(self):
         """Blocker 8: PDF timeout returns ArxivTimeoutError (honest timeout), not rate_limited."""
-        from arxiv_mcp_server.arxiv_api import stream_pdf_to_path
+        from arxsource_mcp.arxiv_api import stream_pdf_to_path
         from pathlib import Path
         import tempfile
         import itertools
@@ -199,7 +199,7 @@ class TestBlockerFixes:
     @pytest.mark.asyncio
     async def test_http_date_retry_after_html_path(self):
         """Blocker 9: HTTP-date Retry-After parsing on HTML path (returns None for PDF fallback)."""
-        from arxiv_mcp_server.tools.download import _fetch_html_content_single_attempt
+        from arxsource_mcp.tools.download import _fetch_html_content_single_attempt
         from email.utils import formatdate
         import datetime
 
@@ -223,7 +223,7 @@ class TestBlockerFixes:
     @pytest.mark.asyncio
     async def test_http_date_retry_after_pdf_path(self):
         """PDF path should parse HTTP-date Retry-After without ValueError."""
-        from arxiv_mcp_server.arxiv_api import stream_pdf_to_path
+        from arxsource_mcp.arxiv_api import stream_pdf_to_path
         from pathlib import Path
         import tempfile
         from email.utils import formatdate
@@ -290,7 +290,7 @@ class TestLatexRateLimiting:
     @pytest.mark.asyncio
     async def test_latex_406_rate_limited_one_call(self):
         """LaTeX 406 should give rate_limited after 1 call with 600s retry_after."""
-        from arxiv_mcp_server.tools.latex import handle_get_paper_latex
+        from arxsource_mcp.tools.latex import handle_get_paper_latex
         import itertools
 
         request = httpx.Request("GET", "https://arxiv.org/e-print/2103.14030")
@@ -329,8 +329,8 @@ class TestLatexRateLimiting:
     @pytest.mark.asyncio
     async def test_latex_429_rate_limited_one_call(self):
         """LaTeX 429 should give rate_limited after 1 call, honoring Retry-After."""
-        from arxiv_mcp_server.tools.latex import handle_get_paper_latex
-        from arxiv_mcp_server import arxiv_api
+        from arxsource_mcp.tools.latex import handle_get_paper_latex
+        from arxsource_mcp import arxiv_api
         import itertools
 
         request = httpx.Request("GET", "https://arxiv.org/e-print/2103.14030")
@@ -377,8 +377,8 @@ class TestLatexRateLimiting:
     @pytest.mark.asyncio
     async def test_latex_503_rate_limited_one_call(self):
         """LaTeX 503 should give rate_limited after 1 call with 60s retry_after."""
-        from arxiv_mcp_server.tools.latex import handle_get_paper_latex
-        from arxiv_mcp_server import arxiv_api
+        from arxsource_mcp.tools.latex import handle_get_paper_latex
+        from arxsource_mcp import arxiv_api
         import itertools
 
         request = httpx.Request("GET", "https://arxiv.org/e-print/2103.14030")
@@ -426,9 +426,9 @@ class TestNewBlockerFixes:
     @pytest.mark.asyncio
     async def test_latex_trickle_bounded_by_budget(self):
         """LaTeX trickling body is cut off by wall-clock deadline."""
-        from arxiv_mcp_server.tools.latex_archive import _download_source_archive
-        from arxiv_mcp_server.tools.latex_archive import LatexSourceError
-        from arxiv_mcp_server import arxiv_api
+        from arxsource_mcp.tools.latex_archive import _download_source_archive
+        from arxsource_mcp.tools.latex_archive import LatexSourceError
+        from arxsource_mcp import arxiv_api
 
         # Mock a trickling stream that yields 1 byte at a time indefinitely
         class TricklingStream:
@@ -474,7 +474,7 @@ class TestNewBlockerFixes:
                 # Should raise LatexSourceError due to deadline exceeded
                 with pytest.raises(LatexSourceError) as exc_info:
                     with patch.dict(
-                        "os.environ", {"ARXIV_MAX_TOTAL_TIME": "1.0"}, clear=False
+                        "os.environ", {"ARXSOURCE_MAX_TOTAL_TIME": "1.0"}, clear=False
                     ):
                         _download_source_archive("2103.14030")
 
@@ -483,7 +483,7 @@ class TestNewBlockerFixes:
     @pytest.mark.asyncio
     async def test_pdf_trickle_bounded_by_budget(self):
         """PDF trickling body is cut off by wall-clock deadline."""
-        from arxiv_mcp_server.arxiv_api import stream_pdf_to_path, ArxivTimeoutError
+        from arxsource_mcp.arxiv_api import stream_pdf_to_path, ArxivTimeoutError
         from pathlib import Path
         import tempfile
 
@@ -548,15 +548,15 @@ class TestNewBlockerFixes:
     @pytest.mark.asyncio
     async def test_html_plus_pdf_stall_single_budget(self):
         """HTML stall + PDF stall must complete within single deadline."""
-        from arxiv_mcp_server.tools.download import (
+        from arxsource_mcp.tools.download import (
             _fetch_html_content,
             _fetch_pdf_content,
         )
-        from arxiv_mcp_server import arxiv_api
+        from arxsource_mcp import arxiv_api
 
         # Mock HTML to return None (triggering PDF fallback)
         with patch(
-            "arxiv_mcp_server.tools.download._fetch_html_content_single_attempt"
+            "arxsource_mcp.tools.download._fetch_html_content_single_attempt"
         ) as mock_html:
             # HTML times out after consuming some budget
             mock_html.side_effect = [

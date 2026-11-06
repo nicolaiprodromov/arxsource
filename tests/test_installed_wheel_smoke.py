@@ -18,11 +18,11 @@ def test_find_single_wheel_requires_exactly_one_candidate(tmp_path):
     with pytest.raises(RuntimeError, match="exactly one wheel"):
         find_single_wheel(tmp_path)
 
-    wheel = tmp_path / "arxiv_mcp_server-0.6.2-py3-none-any.whl"
+    wheel = tmp_path / "arxsource_mcp-0.6.2-py3-none-any.whl"
     wheel.touch()
     assert find_single_wheel(tmp_path) == wheel
 
-    (tmp_path / "arxiv_mcp_server-0.6.3-py3-none-any.whl").touch()
+    (tmp_path / "arxsource_mcp-0.6.3-py3-none-any.whl").touch()
     with pytest.raises(RuntimeError, match="exactly one wheel"):
         find_single_wheel(tmp_path)
 
@@ -35,9 +35,9 @@ def test_venv_python_is_cross_platform():
 
 def test_venv_entrypoint_is_cross_platform():
     root = Path("smoke-venv")
-    assert venv_entrypoint(root, platform="posix") == root / "bin" / "arxiv-mcp-server"
+    assert venv_entrypoint(root, platform="posix") == root / "bin" / "arxsource-mcp"
     assert venv_entrypoint(root, platform="nt") == (
-        root / "Scripts" / "arxiv-mcp-server.exe"
+        root / "Scripts" / "arxsource-mcp.exe"
     )
 
 

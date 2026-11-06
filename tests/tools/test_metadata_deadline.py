@@ -4,7 +4,7 @@ import time
 from unittest.mock import Mock, patch, MagicMock
 import pytest
 import requests.exceptions
-from arxiv_mcp_server.tools.download import _fetch_arxiv_metadata
+from arxsource_mcp.tools.download import _fetch_arxiv_metadata
 
 
 class FakeClock:
@@ -69,9 +69,7 @@ def test_metadata_deadline_skips_when_insufficient_budget_before_gate():
     deadline = clock() + 2.0  # Only 2s budget
 
     with patch("time.monotonic", clock):
-        with patch(
-            "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
-        ) as mock_limiter:
+        with patch("arxsource_mcp.tools.download.ARXIV_RATE_LIMITER") as mock_limiter:
             # pending_wait=3s (typical), min_attempt_time=1s → need 4s, have 2s → skip
             mock_limiter.seconds_until_next_slot.return_value = 3.0
 
@@ -95,7 +93,7 @@ def test_metadata_trickle_past_deadline_returns_none():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 # Advance clock 3s for gate wait
                 def run_sync_with_delay(operation, timeout=None):
@@ -126,7 +124,7 @@ def test_metadata_http_406_returns_none_immediately():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -166,7 +164,7 @@ def test_metadata_happy_path_parses_correctly():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -194,7 +192,7 @@ def test_metadata_gate_recheck_skips_after_long_wait():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 # Simulate gate wait consuming most of budget
                 def run_sync_with_long_wait(operation, timeout=None):
@@ -219,7 +217,7 @@ def test_metadata_timeout_on_connect():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -249,7 +247,7 @@ def test_metadata_mutation_check_without_per_chunk_deadline():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 # Advance 3s for gate wait
                 def run_sync_with_delay(operation, timeout=None):
@@ -297,7 +295,7 @@ def test_metadata_parses_arxiv_version_from_entry_id():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -337,7 +335,7 @@ def test_metadata_collapses_whitespace_in_title():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -376,7 +374,7 @@ def test_metadata_formats_dates_with_timezone_offset():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -411,7 +409,7 @@ def test_metadata_sends_user_agent_header():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -427,7 +425,7 @@ def test_metadata_sends_user_agent_header():
     call_kwargs = mock_get.call_args[1]
     assert "headers" in call_kwargs
     assert "User-Agent" in call_kwargs["headers"]
-    assert "arxiv-mcp-server" in call_kwargs["headers"]["User-Agent"]
+    assert "arxsource/" in call_kwargs["headers"]["User-Agent"]
 
 
 def test_metadata_watchdog_closes_connection_on_deadline():
@@ -462,7 +460,7 @@ def test_metadata_watchdog_closes_connection_on_deadline():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 mock_limiter.run_sync.side_effect = lambda op, timeout=None: op()
                 mock_limiter.seconds_until_next_slot.return_value = 0.0
@@ -501,13 +499,13 @@ def test_metadata_gate_timeout_returns_none_without_request():
     with patch("time.monotonic", clock):
         with patch("requests.get") as mock_get:
             with patch(
-                "arxiv_mcp_server.tools.download.ARXIV_RATE_LIMITER"
+                "arxsource_mcp.tools.download.ARXIV_RATE_LIMITER"
             ) as mock_limiter:
                 # Simulate gate timeout - raise GateTimeout without calling operation
                 def run_sync_with_timeout(operation, timeout=None):
                     if timeout is not None:
                         # Gate acquisition times out
-                        from arxiv_mcp_server.arxiv_api import GateTimeout
+                        from arxsource_mcp.arxiv_api import GateTimeout
 
                         raise GateTimeout(
                             f"Could not acquire rate limiter gate within {timeout}s timeout"

@@ -1,4 +1,4 @@
-"""Prompt handling functionality for arXiv MCP server."""
+"""Prompt handling functionality for ArxSource."""
 
 from .handlers import list_prompts, get_prompt
 
