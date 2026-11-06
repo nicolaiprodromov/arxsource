@@ -5,6 +5,16 @@ All notable changes to arxiv-mcp-server will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### `find_paper_code` tool
+- New read-only tool that finds where a paper's code and artifacts live: GitHub repository and stars, project page, Hugging Face paper page, and the top Hugging Face models, datasets, and Spaces, with `total`/`has_more` counts per type
+- Uses the public Hugging Face Hub API (no key needed). It makes three concurrent requests that reuse the shared retry and backoff policy
+- First tool to declare an MCP `outputSchema`. It returns `structuredContent` and keeps the same JSON in a text block for clients without structured output support
+- Papers that Hugging Face has not indexed return `found: false` instead of an error. If one sub-request fails, it is reported in `warnings` and the other results are still returned
+
 ## [0.8.2] - 2026-10-08
 
 ### Fixed

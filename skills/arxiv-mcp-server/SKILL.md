@@ -13,7 +13,7 @@ Use the bundled MCP server for research-grade access to arXiv. Prefer bounded an
 2. Use `get_abstract` to assess relevance before downloading a full paper.
 3. For author-submitted source, call `list_paper_latex_sections` first and then retrieve only the relevant section with `get_paper_latex_section`.
 4. For rendered full text, call `download_paper` once and page through `read_paper` with explicit `start` and `max_chars` values.
-5. Use `citation_graph` to follow references and citing papers.
+5. Use `citation_graph` to follow references and citing papers, and `find_paper_code` to locate a paper's code repository and Hugging Face models or datasets.
 6. Use topic watches for ongoing monitoring; use semantic search only after papers have been downloaded and indexed locally.
 
 ## Runtime

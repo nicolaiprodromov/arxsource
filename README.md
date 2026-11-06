@@ -179,7 +179,7 @@ If the command is not immediately available, run `uv tool update-shell` and rest
 
 ## Tools
 
-The server currently exposes 19 tools.
+The server currently exposes 20 tools.
 
 | Tool | Purpose | Notes |
 |---|---|---|
@@ -196,6 +196,7 @@ The server currently exposes 19 tools.
 | `get_paper_latex_section` | Read one bounded LaTeX section | Select by outline ID or exact title |
 | `citation_graph` | Fetch references and citing papers | Remote Semantic Scholar API (1 call per paper, cached on disk); optional free API key improves reliability |
 | `export_citations` | Export BibTeX for one or more arXiv IDs | Authoritative arXiv metadata |
+| `find_paper_code` | Find a paper's GitHub repo, project page, and Hugging Face models, datasets, and Spaces | Remote Hugging Face Hub API (no key); returns `structuredContent` with an `outputSchema` |
 | `watch_topic` | Save or update an arXiv topic watch | Stored locally; omit `categories` to preserve on update, `categories: []` to clear |
 | `list_watches` | List saved topic watches | Read-only; does not advance last_checked |
 | `check_alerts` | Check saved watches for new papers | Returns papers since the last check |
@@ -284,6 +285,21 @@ Defaults return up to five compact results with abstract snippets. Use `"abstrac
 ```
 
 Do not call `get_abstract` again for papers already returned with `abstract_mode=full`.
+
+### Find code and artifacts for a paper
+
+Call `find_paper_code` with:
+
+```json
+{
+  "paper_id": "2312.00752",
+  "max_results": 5
+}
+```
+
+The response lists the GitHub repository and star count, the project page, the Hugging Face paper page, and up to `max_results` (default 5, cap 20) models, datasets, and Spaces per type. Each type also reports `total`, `returned`, and `has_more`. Models and datasets are ranked by Hub downloads. Spaces come from the Hugging Face paper page in the Hub's own order, without download or like counts, because the Hub API cannot filter Spaces by paper. Version suffixes are ignored, since the Hub indexes bare arXiv IDs.
+
+A paper with nothing linked returns `found: false` with an explanation, not an error. If one Hub request fails, that section carries an `error`, a line is added to `warnings`, and the other results are still returned. The call fails only when every Hub request fails.
 
 ### Download and read full text
 

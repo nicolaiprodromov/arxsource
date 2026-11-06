@@ -7,7 +7,7 @@ This module implements an MCP server for interacting with arXiv.
 
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import mcp.types as types
 import uvicorn
@@ -37,6 +37,8 @@ from .tools import (
     citation_graph_tool,
     handle_export_citations,
     export_citations_tool,
+    handle_find_paper_code,
+    find_paper_code_tool,
     handle_watch_topic,
     watch_topic_tool,
     handle_check_alerts,
@@ -95,6 +97,7 @@ async def list_tools() -> List[types.Tool]:
         reindex_tool,
         citation_graph_tool,
         export_citations_tool,
+        find_paper_code_tool,
         watch_topic_tool,
         check_alerts_tool,
         list_watches_tool,
@@ -125,8 +128,14 @@ def _tool_error_message(result: List[types.TextContent]) -> str | None:
 
 
 @server.call_tool()
-async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextContent]:
-    """Handle tool calls for arXiv research functionality."""
+async def call_tool(
+    name: str, arguments: Dict[str, Any]
+) -> List[types.TextContent] | Tuple[List[types.TextContent], Dict[str, Any]]:
+    """Handle tool calls for arXiv research functionality.
+
+    Tools that declare an outputSchema return ``(content, structured)``; the
+    SDK sends both as ``content`` and ``structuredContent``.
+    """
     logger.debug(f"Calling tool {name} with arguments {arguments}")
     try:
         if name == "search_papers":
@@ -147,6 +156,8 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
             result = await handle_citation_graph(arguments)
         elif name == "export_citations":
             result = await handle_export_citations(arguments)
+        elif name == "find_paper_code":
+            result = await handle_find_paper_code(arguments)
         elif name == "watch_topic":
             result = await handle_watch_topic(arguments)
         elif name == "check_alerts":
@@ -172,7 +183,8 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[types.TextCont
                 types.TextContent(type="text", text=f"Error: Unknown tool {name}")
             ]
 
-        if error_message := _tool_error_message(result):
+        content = result[0] if isinstance(result, tuple) else result
+        if error_message := _tool_error_message(content):
             raise RuntimeError(error_message)
         return result
     except Exception as e:

@@ -13,6 +13,7 @@ from .semantic_search import (
 )
 from .citation_graph import citation_graph_tool, handle_citation_graph
 from .export_citations import export_citations_tool, handle_export_citations
+from .find_paper_code import find_paper_code_tool, handle_find_paper_code
 from .alerts import (
     watch_topic_tool,
     handle_watch_topic,
@@ -59,6 +60,8 @@ __all__ = [
     "handle_citation_graph",
     "export_citations_tool",
     "handle_export_citations",
+    "find_paper_code_tool",
+    "handle_find_paper_code",
     "watch_topic_tool",
     "handle_watch_topic",
     "check_alerts_tool",

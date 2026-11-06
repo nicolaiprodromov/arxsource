@@ -26,6 +26,7 @@ EXPECTED_TOOLS = {
     "citation_graph",
     "download_paper",
     "export_citations",
+    "find_paper_code",
     "get_abstract",
     "get_paper_latex",
     "get_paper_latex_section",

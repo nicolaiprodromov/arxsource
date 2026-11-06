@@ -19,6 +19,7 @@ EXPECTED_TOOL_NAMES = {
     "reindex",
     "citation_graph",
     "export_citations",
+    "find_paper_code",
     "watch_topic",
     "check_alerts",
     "list_watches",
@@ -152,6 +153,7 @@ async def test_tools_list_serialized_size_snapshot():
     # under the pre-change ~16k measurement on main @94a1317.
     assert search_chars < 3000
     # Soft ceiling allows abstract_mode (#128), markdown outline tools (#129),
-    # and latex return_full_text schema parity (#256) on top of the #131 shrink.
-    assert total_chars < 18000
+    # latex return_full_text schema parity (#256), and find_paper_code with its
+    # outputSchema (~2.1k) on top of the #131 shrink.
+    assert total_chars < 20500
     assert len(search.description) < 1500
