@@ -5,7 +5,7 @@ All notable changes to ArxSource are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-11-06
 
 Initial release of ArxSource: an MCP server that lets AI agents search, read and analyze arXiv papers, and find their code. ArxSource is derived from arxiv-mcp-server (Apache-2.0); see [NOTICE](NOTICE).
 
@@ -32,7 +32,7 @@ Initial release of ArxSource: an MCP server that lets AI agents search, read and
 
 #### Configuration
 - arXiv request tuning through `ARXSOURCE_REQUEST_TIMEOUT`, `ARXSOURCE_CONNECT_TIMEOUT`, `ARXSOURCE_MAX_TOTAL_TIME`, `ARXSOURCE_MAX_RETRIES`, `ARXSOURCE_HTTP_406_MAX_RETRIES`, `ARXSOURCE_INITIAL_BACKOFF`, and `ARXSOURCE_MAX_BACKOFF`.
-- Papers, source caches, alerts, and indexes are stored under `~/.arxsource/papers` unless `--storage-path` is given.
+- Papers, source caches, alerts, and indexes are stored under `~/.arxsource/papers` unless `--storage-path` is given. A blank value or an unfilled `${VAR}` placeholder falls back to the default instead of the working directory.
 
 #### Distribution
 - PyPI package `arxsource-mcp` with the `arxsource-mcp` command (`uvx arxsource-mcp`), and `[pdf]` and `[pro]` extras.

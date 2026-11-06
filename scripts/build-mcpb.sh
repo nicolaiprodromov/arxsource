@@ -38,7 +38,11 @@ echo "Building arxsource-mcp v$VERSION MCPB bundle..."
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR/server/vendor"
 
-# Generate a 512x512 teal icon (pure Python, no deps)
+# Use the project icon; fall back to a generated 512x512 square (pure Python, no deps)
+if [ -f "$ROOT/assets/icon.png" ]; then
+cp "$ROOT/assets/icon.png" "$BUILD_DIR/icon.png"
+echo "Copied icon.png"
+else
 "$PYTHON_BIN" - "$BUILD_DIR/icon.png" <<'PYEOF'
 import struct, zlib, sys
 
@@ -58,6 +62,7 @@ with open(sys.argv[1], 'wb') as f:
     f.write(make_png(512, 512, 20, 108, 148))
 print("Generated icon.png")
 PYEOF
+fi
 
 # Copy manifest and stamp version
 "$PYTHON_BIN" - "$ROOT/manifest.json" "$BUILD_DIR/manifest.json" "$VERSION" <<'PYEOF'

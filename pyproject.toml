@@ -84,6 +84,9 @@ arxsource-mcp = "arxsource_mcp:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/arxsource_mcp"]
 
+[tool.hatch.build.targets.sdist]
+exclude = ["assets"]
+
 [tool.hatch.metadata]
 allow-direct-references = true
 

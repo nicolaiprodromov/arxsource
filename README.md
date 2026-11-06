@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/nicolaiprodromov/arxsource/main/assets/arxsource.gif" alt="ArxSource: an agent searches arXiv for Mamba, reads section 3.2 from its LaTeX, walks the citation graph, and finds its GitHub repo and Hugging Face models" width="100%">
+</p>
+
 # ArxSource
 
 **Read the paper. Find the source.**
@@ -7,7 +11,7 @@
 [![PyPI](https://img.shields.io/pypi/v/arxsource-mcp.svg)](https://pypi.org/project/arxsource-mcp/)
 [![Python](https://img.shields.io/pypi/pyversions/arxsource-mcp.svg)](https://pypi.org/project/arxsource-mcp/)
 [![Tests](https://github.com/nicolaiprodromov/arxsource/actions/workflows/tests.yml/badge.svg)](https://github.com/nicolaiprodromov/arxsource/actions/workflows/tests.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/nicolaiprodromov/arxsource/blob/main/LICENSE)
 
 ArxSource is an open-source [Model Context Protocol](https://modelcontextprotocol.io) server that lets AI agents search, read and analyze arXiv papers, and find their code. It runs locally over stdio, keeps papers on disk, and returns bounded, section-aware content so a single tool call never floods the context window.
 
@@ -481,7 +485,7 @@ Paper text and LaTeX are untrusted external content. A paper can contain text in
 - Review generated summaries before taking external actions.
 - Keep Streamable HTTP private unless authentication is provided upstream.
 
-See [SECURITY.md](SECURITY.md) for the threat model and how to report a vulnerability privately.
+See [SECURITY.md](https://github.com/nicolaiprodromov/arxsource/blob/main/SECURITY.md) for the threat model and how to report a vulnerability privately.
 
 ## Development
 
@@ -511,12 +515,12 @@ Run the development checkout from an MCP client with:
 }
 ```
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and use [GitHub Issues](https://github.com/nicolaiprodromov/arxsource/issues) for reproducible bugs or scoped feature proposals. Release notes are in [CHANGELOG.md](CHANGELOG.md).
+Contributions are welcome. Read [CONTRIBUTING.md](https://github.com/nicolaiprodromov/arxsource/blob/main/CONTRIBUTING.md) before opening a pull request, and use [GitHub Issues](https://github.com/nicolaiprodromov/arxsource/issues) for reproducible bugs or scoped feature proposals. Release notes are in [CHANGELOG.md](https://github.com/nicolaiprodromov/arxsource/blob/main/CHANGELOG.md).
 
 ## Acknowledgements
 
-ArxSource is derived from [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) by Joseph Blazick, licensed under Apache-2.0; see [NOTICE](NOTICE).
+ArxSource is derived from [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) by Joseph Blazick, licensed under Apache-2.0; see [NOTICE](https://github.com/nicolaiprodromov/arxsource/blob/main/NOTICE).
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Apache License 2.0. See [LICENSE](https://github.com/nicolaiprodromov/arxsource/blob/main/LICENSE) and [NOTICE](https://github.com/nicolaiprodromov/arxsource/blob/main/NOTICE).
