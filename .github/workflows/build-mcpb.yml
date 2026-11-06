@@ -93,5 +93,5 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.release_tag == ''
         uses: actions/upload-artifact@v7
         with:
-          name: arxiv-mcp-server-mcpb-${{ matrix.os }}
+          name: arxsource-mcp-mcpb-${{ matrix.os }}
           path: mcpb-build/*.mcpb

@@ -1,17 +1,54 @@
+# Publishes arxsource-mcp to PyPI and the MCP Registry.
+#
+# Runs only on a deliberate trigger:
+#   - a GitHub release being published, or
+#   - a manual workflow_dispatch run. Manual runs are dry runs (validate and
+#     build only) unless "publish" is ticked, and then they must be started
+#     from the release tag (v<version>).
+#
+# One-time setup before the first release:
+#   - PyPI: add a trusted publisher for project "arxsource-mcp"
+#     (owner nicolaiprodromov, repository arxsource, workflow publish.yml,
+#     environment pypi). No PyPI token secret is used.
+#   - GitHub: create the "pypi" environment (optionally with required
+#     reviewers so every publish needs an approval).
+#   - MCP Registry: nothing to configure; "mcp-publisher login github-oidc"
+#     authenticates the io.github.nicolaiprodromov/* namespace from this
+#     repository's OIDC token.
 name: Publish Distribution
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to PyPI and the MCP Registry (unticked = dry run)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
-  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
   validate-and-publish:
+    # Never publish from forks or mirrors.
+    if: github.repository == 'nicolaiprodromov/arxsource'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment:
+      name: pypi
+      url: https://pypi.org/project/arxsource-mcp/
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      SHOULD_PUBLISH: ${{ github.event_name == 'release' || inputs.publish == true }}
     steps:
       - uses: actions/checkout@v7
 
@@ -26,7 +63,7 @@ jobs:
 
       - name: Verify release tag and metadata
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
         run: |
           python - <<'PY'
           import os
@@ -37,8 +74,11 @@ jobs:
           expected = f"v{version}"
           actual = os.environ["RELEASE_TAG"]
           if actual != expected:
-              raise SystemExit(f"Release tag {actual!r} does not match {expected!r}")
-          print(f"Validated release {actual}")
+              if os.environ["SHOULD_PUBLISH"] == "true":
+                  raise SystemExit(f"Release tag {actual!r} does not match {expected!r}")
+              print(f"Dry run from {actual!r}; a publish would require tag {expected!r}")
+          else:
+              print(f"Validated release {actual}")
           PY
 
       - name: Install locked validation environment
@@ -67,14 +107,14 @@ jobs:
       - name: Validate MCP Registry metadata
         run: ./mcp-publisher validate
 
+      - name: Publish to PyPI (trusted publishing)
+        if: env.SHOULD_PUBLISH == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+
       - name: Authenticate to MCP Registry
+        if: env.SHOULD_PUBLISH == 'true'
         run: ./mcp-publisher login github-oidc
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-
       - name: Publish to MCP Registry
+        if: env.SHOULD_PUBLISH == 'true'
         run: ./mcp-publisher publish

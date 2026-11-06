@@ -1,3 +1,4 @@
+import base64
 import json
 import re
 import tomllib
@@ -59,7 +60,7 @@ def test_release_metadata_and_arxiv_dependency_are_synchronized():
     assert codex_plugin["skills"] == "./skills/"
     assert claude_plugin["version"] == version
     assert claude_plugin["name"] == project["name"]
-    assert claude_marketplace["name"] == "arxiv-mcp"
+    assert claude_marketplace["name"] == "arxsource"
     assert claude_marketplace["plugins"][0]["name"] == project["name"]
     assert claude_marketplace["plugins"][0]["source"] == "./"
     assert codex_marketplace["name"] == claude_marketplace["name"]
@@ -69,26 +70,33 @@ def test_release_metadata_and_arxiv_dependency_are_synchronized():
         "path": "./",
     }
     assert codex_mcp == {
-        "arxiv": {
+        "arxsource": {
             "command": "uvx",
-            "args": ["arxiv-mcp-server"],
+            "args": ["arxsource-mcp"],
         }
     }
-    assert shared_mcp["mcpServers"]["arxiv"] == {
+    assert shared_mcp["mcpServers"]["arxsource"] == {
         "type": "stdio",
         "command": "uvx",
-        "args": ["arxiv-mcp-server"],
+        "args": ["arxsource-mcp"],
     }
-    assert kiro_mcp["mcpServers"]["arxiv"] == {
+    assert kiro_mcp["mcpServers"]["arxsource"] == {
         "command": "uvx",
-        "args": ["arxiv-mcp-server"],
+        "args": ["arxsource-mcp"],
     }
     kiro_frontmatter = re.match(r"---\n(?P<body>.*?)\n---", kiro_power, re.DOTALL)
     assert kiro_frontmatter is not None
-    assert 'name: "arxiv-mcp-server"' in kiro_frontmatter["body"]
-    assert 'displayName: "arXiv Research"' in kiro_frontmatter["body"]
-    assert 'author: "Joseph Blazick"' in kiro_frontmatter["body"]
+    assert 'name: "arxsource-mcp"' in kiro_frontmatter["body"]
+    assert 'displayName: "ArxSource"' in kiro_frontmatter["body"]
+    assert 'author: "nicolaiprodromov"' in kiro_frontmatter["body"]
     assert lock_package["version"] == version
+    assert project["name"] == "arxsource-mcp"
+    assert project["scripts"] == {"arxsource-mcp": "arxsource_mcp:main"}
+    assert server["name"] == "io.github.nicolaiprodromov/arxsource"
+    assert server["packages"][0]["identifier"] == project["name"]
+    assert manifest["name"] == project["name"]
+    assert manifest["server"]["entry_point"] == "server/arxsource_mcp/__main__.py"
+    assert manifest["server"]["mcp_config"]["args"][:2] == ["-m", "arxsource_mcp"]
     assert project["authors"][0]["email"] == manifest["author"]["email"]
     assert arxiv_requirement == "arxiv>=2.1.0"
 
@@ -120,24 +128,25 @@ def test_mcp_dependency_excludes_incompatible_major_release():
 def test_readme_exposes_supported_install_paths():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert "static.pepy.tech/badge/arxiv-mcp-server" in readme
-    assert "claude mcp add --transport stdio --scope user arxiv" in readme
-    assert "codex mcp add arxiv -- uvx arxiv-mcp-server" in readme
-    assert "hermes mcp add arxiv --command uvx --args arxiv-mcp-server" in readme
-    assert "hermes mcp test arxiv" in readme
+    assert "<!-- mcp-name: io.github.nicolaiprodromov/arxsource -->" in readme
+    assert "img.shields.io/pypi/v/arxsource-mcp" in readme
+    assert "uvx arxsource-mcp" in readme
     assert (
-        "uvx --python 3.11 --refresh-package arxiv-mcp-server arxiv-mcp-server"
+        "claude mcp add --transport stdio --scope user arxsource -- uvx arxsource-mcp"
         in readme
     )
+    assert "codex mcp add arxsource -- uvx arxsource-mcp" in readme
+    assert "hermes mcp add arxsource --command uvx --args arxsource-mcp" in readme
+    assert "hermes mcp test arxsource" in readme
+    assert "uvx --python 3.11 --refresh-package arxsource-mcp arxsource-mcp" in readme
     assert "command -v uvx" in readme
     assert "Get-Command uvx" in readme
     assert "uv tool update-shell" in readme
-    assert (
-        "registry.modelcontextprotocol.io/v0.1/servers/io.github.blazickjp%2Farxiv-mcp-server/versions/latest"
-        in readme
-    )
-    assert "claude plugin install arxiv-mcp-server@arxiv-mcp" in readme
-    assert "codex plugin add arxiv-mcp-server@arxiv-mcp" in readme
+    assert "claude plugin marketplace add nicolaiprodromov/arxsource" in readme
+    assert "claude plugin install arxsource-mcp@arxsource" in readme
+    assert "codex plugin add arxsource-mcp@arxsource" in readme
+    assert "`find_paper_code`" in readme
+    assert "not affiliated with or endorsed by arXiv" in readme
     assert '$env:TRANSPORT = "http"' in readme
     assert "clients that accept the `mcpServers` JSON shape" in readme
     assert "Smithery" not in readme
@@ -149,10 +158,10 @@ def test_readme_exposes_supported_install_paths():
     )
     assert kiro_url is not None
     kiro_query = parse_qs(urlparse(kiro_url.group()).query)
-    assert kiro_query["name"] == ["arxiv-mcp-server"]
+    assert kiro_query["name"] == ["arxsource"]
     assert json.loads(kiro_query["config"][0]) == {
         "command": "uvx",
-        "args": ["arxiv-mcp-server"],
+        "args": ["arxsource-mcp"],
         "disabled": False,
         "autoApprove": [],
     }
@@ -163,11 +172,11 @@ def test_readme_exposes_supported_install_paths():
     )
     assert vscode_url is not None
     vscode_query = parse_qs(urlparse(vscode_url.group()).query)
-    assert vscode_query["name"] == ["arxiv-mcp-server"]
+    assert vscode_query["name"] == ["arxsource"]
     vscode_config = {
         "type": "stdio",
         "command": "uvx",
-        "args": ["arxiv-mcp-server"],
+        "args": ["arxsource-mcp"],
     }
     assert json.loads(vscode_query["config"][0]) == vscode_config
 
@@ -217,3 +226,47 @@ def test_workflows_bound_protocol_smoke_runtime():
     assert "timeout-minutes: 20" in workflows["tests.yml"]
     assert "timeout-minutes: 20" in workflows["publish.yml"]
     assert "timeout-minutes: 30" in workflows["build-mcpb.yml"]
+
+
+def test_readme_cursor_deeplink_launches_arxsource():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    cursor_url = re.search(r"https://cursor\.com/en/install-mcp\?[^)]+", readme)
+    assert cursor_url is not None
+    cursor_query = parse_qs(urlparse(cursor_url.group()).query)
+    assert cursor_query["name"] == ["arxsource"]
+    assert json.loads(base64.b64decode(cursor_query["config"][0])) == {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["arxsource-mcp"],
+    }
+
+
+def test_apache_license_attribution_is_preserved():
+    license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+    notice = (ROOT / "NOTICE").read_text(encoding="utf-8")
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert "Apache License" in license_text
+    assert "Copyright 2024 Joseph Blazick" in license_text
+    assert "derived from arxiv-mcp-server by Joseph Blazick" in notice
+    assert "https://github.com/blazickjp/arxiv-mcp-server" in notice
+    assert "has been modified" in notice
+    assert pyproject["project"]["license-files"] == ["LICENSE", "NOTICE"]
+
+
+def test_publish_workflow_requires_a_deliberate_trigger():
+    workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(
+        encoding="utf-8"
+    )
+    triggers = workflow.split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
+
+    assert "release:\n    types: [published]" in triggers
+    assert "workflow_dispatch:" in triggers
+    assert "push:" not in triggers
+    assert "pull_request" not in triggers
+    assert "schedule:" not in triggers
+    assert "if: github.repository == 'nicolaiprodromov/arxsource'" in workflow
+    assert "default: false" in workflow
+    assert "secrets.PYPI_API_TOKEN" not in workflow
+    assert workflow.count("if: env.SHOULD_PUBLISH == 'true'") == 3
