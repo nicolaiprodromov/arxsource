@@ -35,6 +35,13 @@ def test_storage_path_from_args(mock_resolve, mock_mkdir):
     mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
 
+def test_storage_path_blank_or_placeholder_uses_default():
+    """A blank value or an unfilled ${VAR} placeholder must not become the cwd."""
+    for value in ["", "   ", "${ARXSOURCE_STORAGE_PATH}"]:
+        with patch.object(sys, "argv", ["program", "--storage-path", value]):
+            assert Settings()._get_storage_path_from_args() is None, value
+
+
 @patch.object(Path, "mkdir")
 @patch.object(Path, "resolve")
 def test_storage_path_platform_compatibility(mock_resolve, mock_mkdir):

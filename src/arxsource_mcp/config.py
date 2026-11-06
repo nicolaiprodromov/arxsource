@@ -237,9 +237,15 @@ class Settings(BaseSettings):
         if storage_path_index + 1 >= len(args):
             return None
 
+        # A blank value or an unfilled "${VAR}" placeholder (from clients that
+        # pass optional registry arguments through unset) means "use default".
+        raw = args[storage_path_index + 1].strip()
+        if not raw or (raw.startswith("${") and raw.endswith("}")):
+            return None
+
         # Try to resolve the path
         try:
-            path = Path(args[storage_path_index + 1])
+            path = Path(raw)
             return path.resolve()
         except (TypeError, ValueError) as e:
             # TypeError: If the path argument is not string-like
