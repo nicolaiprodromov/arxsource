@@ -188,7 +188,7 @@ ArxSource exposes 20 tools.
 | `get_paper_latex_section` | Read one bounded LaTeX section | Select by outline ID or exact title |
 | `citation_graph` | Fetch references and citing papers | Remote Semantic Scholar API (1 call per paper, cached on disk); optional free API key improves reliability |
 | `export_citations` | Export BibTeX for one or more arXiv IDs | Authoritative arXiv metadata |
-| `find_paper_code` | **New.** Find the code behind a paper | Input: arXiv ID. Returns the paper's GitHub repository and star count, plus the top Hugging Face models, datasets, and Spaces that reference it |
+| `find_paper_code` | Find a paper's code and Hugging Face artifacts | Input: `paper_id`, optional `max_results` (1-20, default 5). Returns the GitHub repository and star count, project page, and top Hugging Face models and datasets (by downloads) plus linked Spaces. Remote Hugging Face Hub API (no key); returns `structuredContent` |
 | `watch_topic` | Save or update an arXiv topic watch | Stored locally; omit `categories` to preserve on update, `categories: []` to clear |
 | `list_watches` | List saved topic watches | Read-only; does not advance last_checked |
 | `check_alerts` | Check saved watches for new papers | Returns papers since the last check |
@@ -344,7 +344,20 @@ LaTeX archives are validated, size-limited, and cached locally before content is
 
 ### Find the code behind a paper
 
-Call `find_paper_code` with an arXiv ID (for example `1706.03762`). It returns the paper's GitHub repository with its star count, and the most popular Hugging Face models, datasets, and Spaces that reference the paper, so an agent can move from reading a method to running it. Repository and model-card text is external content and should be treated with the same care as paper text.
+Call `find_paper_code` with:
+
+```json
+{
+  "paper_id": "2312.00752",
+  "max_results": 5
+}
+```
+
+The response lists the GitHub repository and star count, the project page, the Hugging Face paper page, and up to `max_results` (default 5, cap 20) models, datasets, and Spaces per type. Each type also reports `total`, `returned`, and `has_more`. Models and datasets are ranked by Hub downloads. Spaces come from the Hugging Face paper page in the Hub's own order, without download or like counts, because the Hub API cannot filter Spaces by paper. Version suffixes are ignored, since the Hub indexes bare arXiv IDs.
+
+A paper with nothing linked returns `found: false` with an explanation, not an error. If one Hub request fails, that section carries an `error`, a line is added to `warnings`, and the other results are still returned. The call fails only when every Hub request fails.
+
+Repository and model-card text is external content and should be treated with the same care as paper text.
 
 ## Optional dependencies
 

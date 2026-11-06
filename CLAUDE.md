@@ -4,7 +4,7 @@ Guidance for coding agents working in this repository.
 
 ## Project
 
-ArxSource (`arxsource-mcp` on PyPI, `arxsource_mcp` import package) is a Python 3.11+ Model Context Protocol server. It exposes arXiv search, metadata, paper download/read, original LaTeX retrieval, citation graphs, topic alerts, and optional local semantic search over stdio or Streamable HTTP.
+ArxSource (`arxsource-mcp` on PyPI, `arxsource_mcp` import package) is a Python 3.11+ Model Context Protocol server. It exposes arXiv search, metadata, paper download/read, original LaTeX retrieval, citation graphs, paper code discovery, topic alerts, and optional local semantic search over stdio or Streamable HTTP.
 
 ## Setup and validation
 
@@ -50,13 +50,14 @@ The process waits for MCP messages on stdin. It is not an interactive CLI.
 
 ## Tool groups
 
-The server registers 19 tools:
+The server registers 20 tools:
 
 - Discovery: `search_papers`, `get_abstract`
 - Full text: `download_paper`, `list_papers`, `read_paper`, `get_paper_outline`, `read_paper_section`, `search_paper_text`
 - Original source: `get_paper_latex`, `list_paper_latex_sections`, `get_paper_latex_section`
 - Graphs and monitoring: `citation_graph`, `watch_topic`, `list_watches`, `check_alerts`, `unwatch_topic`
 - Citation export: `export_citations`
+- Code discovery: `find_paper_code` (Hugging Face Hub API; returns `structuredContent` with an `outputSchema`)
 - Optional local embeddings: `semantic_search`, `reindex`
 
 Keep tool schemas, package exports, server registration, dispatch, tests, and README documentation synchronized when changing the tool surface.

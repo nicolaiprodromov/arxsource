@@ -17,7 +17,7 @@ Initial release of ArxSource: an MCP server that lets AI agents search, read and
 - **Original source:** `get_paper_latex`, `list_paper_latex_sections`, and `get_paper_latex_section` read author-submitted LaTeX one section at a time.
 - **Citations:** `citation_graph` (references and citing papers via Semantic Scholar, cached on disk) and `export_citations` (BibTeX from arXiv metadata).
 - **Monitoring:** `watch_topic`, `list_watches`, `check_alerts`, and `unwatch_topic` keep topic watches on disk.
-- **Code discovery:** `find_paper_code` takes an arXiv ID and returns the paper's GitHub repository with its star count, plus the top Hugging Face models, datasets, and Spaces that reference the paper.
+- **Code discovery:** `find_paper_code` takes an arXiv ID (`paper_id`, plus optional `max_results`, 1-20, default 5) and returns the paper's GitHub repository with its star count, project page, and Hugging Face paper page, plus the most-downloaded Hugging Face models and datasets and the Spaces linked from the paper's Hugging Face page (without download counts), with `total`/`returned`/`has_more` per type. It uses the public Hugging Face Hub API (no key) with three concurrent requests on the shared retry and backoff policy, and is the first tool to declare an MCP `outputSchema`: it returns `structuredContent` and the same JSON as a text block. Papers with nothing linked return `found: false` instead of an error; a failed sub-request is reported in `warnings` and the other results are still returned.
 - **Local semantic search** (optional `[pro]` extra): `semantic_search` and `reindex` over downloaded papers.
 
 #### Prompts
